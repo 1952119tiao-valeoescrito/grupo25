@@ -1,0 +1,61 @@
+```bash
+npm install mercadopago ethers prisma @prisma/client lucide-react qrcode.react axios
+```
+
+---
+
+### Passo 3: Colocar o Código Automatizado (A "Inteligência")
+Agora que as pastas existem, este comando vai criar os arquivos específicos que conversamos (PIX, Webhook, Admin e Contrato):
+
+```bash
+mkdir -p src/lib src/pages/api/pix src/pages/api/admin prisma contracts && cat <<EOF > prisma/schema.prisma
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+generator client {
+  provider = "prisma-client-js"
+}
+model Ticket {
+  id               String   @id @default(cuid())
+  rodadaId         Int
+  usuarioCpf       String
+  usuarioEmail     String
+  chavePixPremio   String
+  prognosticos     String   
+  pago             Boolean  @default(false)
+  mpPaymentId      String?  @unique
+  acertos          Int?     
+  pagoAoGanhador   Boolean  @default(false)
+}
+EOF
+cat <<EOF > src/pages/api/pix/create.ts
+import { NextApiRequest, NextApiResponse } from 'next';
+import { Payment, MercadoPagoConfig } from 'mercadopago';
+const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! });
+const payment = new Payment(client);
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    const result = await payment.create({
+      body: {
+        transaction_amount: 10.00,
+        description: "Aposta BetGrupo25",
+        payment_method_id: 'pix',
+        notification_url: \`\${process.env.NEXT_PUBLIC_URL}/api/pix/webhook\`,
+        payer: { email: req.body.email, identification: { type: 'CPF', number: req.body.cpf } }
+      }
+    });
+    res.status(200).json({ qr_code: result.point_of_interaction?.qr_code });
+  } catch (error) { res.status(500).json(error); }
+}
+EOF
+cat <<EOF > .env
+MP_ACCESS_TOKEN="SEU_TOKEN_AQUI"
+CONTRACT_ADDRESS="0x000"
+PRIVATE_KEY="0x000"
+DATABASE_URL="file:./dev.db"
+NEXT_PUBLIC_URL="http://localhost:3000"
+EOF
+npx prisma generate
+```
+
