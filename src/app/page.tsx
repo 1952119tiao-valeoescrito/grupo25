@@ -36,7 +36,7 @@ export default function Home() {
       const data = await res.json();
       if (data.qrCode) setQrCode(data.qrCode);
       else alert("Erro ao gerar PIX");
-    } catch (e) { alert("Erro de conexão"); }
+    } catch (e) { alert("Erro de conexÃ£o"); }
     setLoading(false);
   };
 
@@ -54,13 +54,13 @@ export default function Home() {
 
       <main className="w-full max-w-5xl grid lg:grid-cols-2 gap-8 items-start">
         <section className="bg-slate-900/50 border border-slate-800 p-8 rounded-[2.5rem] shadow-2xl backdrop-blur-md">
-          <h2 className="text-2xl font-bold mb-8 italic">Faça seu Prognóstico</h2>
+          <h2 className="text-2xl font-bold mb-8 italic">FaÃ§a seu PrognÃ³stico</h2>
           {!qrCode ? (
             <div className="space-y-6">
               <div className="space-y-3">
                 {palpites.map((p, i) => (
                   <div key={i} className="flex items-center gap-4 bg-slate-950/50 p-3 rounded-2xl border border-slate-800/50">
-                    <span className="text-slate-600 font-bold text-xs w-6">{i+1}º</span>
+                    <span className="text-slate-600 font-bold text-xs w-6">{i+1}Âº</span>
                     <div className="flex items-center gap-2 flex-1">
                       <input type="text" placeholder="G1" value={p.x} onChange={(e) => updatePalpite(i, 'x', e.target.value)} className="w-full text-center font-bold text-green-500 outline-none bg-transparent" />
                       <span className="text-slate-700">/</span>
@@ -71,7 +71,7 @@ export default function Home() {
               </div>
               <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-800">
                 <input placeholder="Seu CPF" className="text-sm p-4 rounded-xl bg-slate-950 border border-slate-800 outline-none focus:border-green-500" onChange={(e)=>setForm({...form, cpf: e.target.value})} />
-                <input placeholder="Chave PIX Prêmio" className="text-sm p-4 rounded-xl bg-slate-950 border border-slate-800 outline-none focus:border-green-500" onChange={(e)=>setForm({...form, pixKey: e.target.value})} />
+                <input placeholder="Chave PIX PrÃªmio" className="text-sm p-4 rounded-xl bg-slate-950 border border-slate-800 outline-none focus:border-green-500" onChange={(e)=>setForm({...form, pixKey: e.target.value})} />
                 <input placeholder="Seu E-mail" className="col-span-2 text-sm p-4 rounded-xl bg-slate-950 border border-slate-800 outline-none focus:border-green-500" onChange={(e)=>setForm({...form, email: e.target.value})} />
               </div>
               <button onClick={gerarPix} disabled={loading} className="w-full bg-green-600 hover:bg-green-700 p-5 rounded-2xl font-black flex items-center justify-center gap-2 transition-all shadow-xl shadow-green-900/20 uppercase tracking-widest">
@@ -88,13 +88,13 @@ export default function Home() {
         </section>
 
         <section className="bg-slate-900/30 p-8 rounded-[2.5rem] border border-slate-800/50">
-          <h2 className="text-xl font-bold mb-8 flex items-center gap-2 italic"><Scale className="text-green-500" /> Transparência Legal</h2>
+          <h2 className="text-xl font-bold mb-8 flex items-center gap-2 italic"><Scale className="text-green-500" /> TransparÃªncia Legal</h2>
           <div className="space-y-6 text-slate-400">
              <div className="flex justify-between border-b border-slate-800/50 pb-2 text-sm"><span>Seguridade Social (17,32%)</span><span className="font-mono text-green-400">R$ 0,00</span></div>
-             <div className="flex justify-between border-b border-slate-800/50 pb-2 text-sm"><span>Segurança Pública (9,26%)</span><span className="font-mono text-green-400">R$ 0,00</span></div>
-             <div className="flex justify-between border-b border-slate-800/50 pb-2 text-sm"><span>Educação (9,26%)</span><span className="font-mono text-green-400">R$ 0,00</span></div>
+             <div className="flex justify-between border-b border-slate-800/50 pb-2 text-sm"><span>SeguranÃ§a PÃºblica (9,26%)</span><span className="font-mono text-green-400">R$ 0,00</span></div>
+             <div className="flex justify-between border-b border-slate-800/50 pb-2 text-sm"><span>EducaÃ§Ã£o (9,26%)</span><span className="font-mono text-green-400">R$ 0,00</span></div>
              <div className="p-4 bg-slate-950/50 rounded-2xl border border-slate-800">
-                <p className="text-[10px] text-slate-500 leading-relaxed italic">Operação em conformidade com a Lei 13.756/2018. O valor destinado a prêmios é de 43,35% da arrecadação total.</p>
+                <p className="text-[10px] text-slate-500 leading-relaxed italic">OperaÃ§Ã£o em conformidade com a Lei 13.756/2018. O valor destinado a prÃªmios Ã© de 43,35% da arrecadaÃ§Ã£o total.</p>
              </div>
           </div>
         </section>

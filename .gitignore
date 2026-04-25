@@ -4,3 +4,5 @@ node_modules
 *.db
 artifacts
 cache
+.vercel
+.env*.local
