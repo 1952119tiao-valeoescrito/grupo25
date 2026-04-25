@@ -1,21 +1,14 @@
 import "./globals.css";
-import { Inter } from "next/font/google";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Bet-Grupo25 Oficial",
-  description: "Loteria HÃ­brida Web3",
+  description: "Loteria Híbrida Web3",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }) {
   return (
     <html lang="pt-br">
-      <body className={inter.className}>{children}</body>
+      <body>{children}</body>
     </html>
   );
 }
