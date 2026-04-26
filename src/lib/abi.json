@@ -1,6 +1,1 @@
-[
-  "function realizarSorteioOficial(uint256) external returns (uint256)",
-  "function encerrarRodada(uint256, uint256[6]) external",
-  "function rodadaAtual() view returns (uint256)",
-  "function consultarResultados(uint256) view returns (tuple(uint256 milhar, uint8 grupoX, uint8 grupoY, string prognostico)[5])"
-]
+[   "function realizarSorteioOficial(uint256) external returns (uint256)",   "function encerrarRodada(uint256, uint256[6]) external",   "function rodadaAtual() view returns (uint256)",   "function consultarResultados(uint256) view returns (tuple(uint256 milhar, uint8 grupoX, uint8 grupoY, string prognostico)[5])" ]

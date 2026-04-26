@@ -1,4 +1,6 @@
-datasource db {
+import fs from 'fs';
+
+const schema = `datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
@@ -41,4 +43,9 @@ model Ticket {
   mpPaymentId      String?  @unique
   acertos          Int?     
   pagoAoGanhador   Boolean  @default(false)
-}
+}`;
+
+// Escreve o arquivo forçando UTF-8 puro (sem BOM do Windows)
+fs.writeFileSync('prisma/schema.prisma', schema, { encoding: 'utf8' });
+
+console.log("✅ O arquivo prisma/schema.prisma foi restaurado em UTF-8 limpo!");

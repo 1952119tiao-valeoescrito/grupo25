@@ -1,4 +1,6 @@
-"use client"
+import fs from 'fs';
+
+const code = `"use client"
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trophy } from 'lucide-react';
@@ -112,4 +114,7 @@ export default function EliteHome() {
       )}
     </div>
   );
-}
+}`;
+
+fs.writeFileSync('src/app/page.tsx', code, { encoding: 'utf8' });
+console.log("✅ Imagem da Mimosinha integrada ao Splash com sucesso!");

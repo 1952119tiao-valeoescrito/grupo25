@@ -2,7 +2,9 @@
 const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
-  // Isso desativa verificações que podem travar o build na Vercel
-  productionBrowserSourceMaps: false, 
+  webpack: (config) => {
+    config.resolve.fallback = { fs: false, net: false, tls: false };
+    return config;
+  },
 };
 export default nextConfig;

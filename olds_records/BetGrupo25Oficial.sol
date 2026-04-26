@@ -1,4 +1,4 @@
-﻿// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
@@ -148,4 +148,60 @@ contract BetGrupo25Oficial is VRFConsumerBaseV2Plus {
         }
         return string(bstr);
     }
-}
+}`,
+
+  // PÁGINA ADMIN ATUALIZADA COM FUNÇÃO "ENCERRAR RODADA"
+  'src/app/admin/page.tsx': `
+"use client"
+import { useState } from 'react';
+import { Settings, Play, Users, ShieldAlert } from 'lucide-react';
+
+export default function Admin() {
+  const [arrecadacao, setArrecadacao] = useState("");
+  const [ganhadores, setGanhadores] = useState([0,0,0,0,0,0]);
+
+  return (
+    <div className="min-h-screen bg-[#020617] text-white p-8 font-sans">
+      <div className="max-w-5xl mx-auto space-y-8">
+        <h1 className="text-3xl font-bold flex items-center gap-3"><Settings className="text-green-500" /> Gestão Bet-Grupo25</h1>
+        
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* BLOCO 1: SORTEIO */}
+          <div className="bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800">
+            <h2 className="text-lg font-bold mb-6 flex items-center gap-2"><Play className="text-green-500" size={18}/> Iniciar Sorteio (VRF)</h2>
+            <label className="text-[10px] text-slate-500 font-bold uppercase mb-2 block">Arrecadação Total do Mercado Pago</label>
+            <input type="number" value={arrecadacao} onChange={(e)=>setArrecadacao(e.target.value)} className="w-full bg-slate-950 p-4 rounded-xl text-2xl mb-6 outline-none border border-slate-800 focus:border-green-500" placeholder="0.00" />
+            <button className="w-full bg-green-600 p-5 rounded-2xl font-black shadow-lg shadow-green-900/20 hover:bg-green-500">DISPARAR CHAINLINK VRF</button>
+          </div>
+
+          {/* BLOCO 2: RATEIO */}
+          <div className="bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800">
+            <h2 className="text-lg font-bold mb-6 flex items-center gap-2"><Users className="text-blue-500" size={18}/> Definir Ganhadores</h2>
+            <div className="grid grid-cols-5 gap-2 mb-6">
+              {[1,2,3,4,5].map(i => (
+                <div key={i}>
+                  <label className="text-[8px] text-slate-500 block text-center mb-1">{i} PTS</label>
+                  <input type="number" className="w-full bg-slate-950 p-2 rounded-lg text-center border border-slate-800" />
+                </div>
+              ))}
+            </div>
+            <button className="w-full bg-blue-600 p-5 rounded-2xl font-black shadow-lg shadow-blue-900/20 hover:bg-blue-500 uppercase text-xs">Finalizar e Encerrar Rodada</button>
+          </div>
+        </div>
+
+        <div className="bg-yellow-500/10 border border-yellow-500/20 p-6 rounded-3xl flex gap-4 items-start">
+          <ShieldAlert className="text-yellow-500 shrink-0" />
+          <p className="text-xs text-yellow-200/70 italic leading-relaxed">
+            Atenção: A função "Encerrar Rodada" aplicará automaticamente a regra de cascata do contrato. Se a faixa de 5 pontos estiver vazia, o prêmio será redistribuído proporcionalmente para as faixas 4, 3, 2 e 1 conforme previsto no contrato oficial.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}`
+};
+
+// Execução
+folders.forEach(f => { if (!fs.existsSync(f)) fs.mkdirSync(f, { recursive: true }); });
+Object.entries(files).forEach(([name, content]) => fs.writeFileSync(name, content.trim()));
+console.log("✅ Projeto Bet-Grupo25 atualizado com o seu contrato oficial!");
