@@ -1,4 +1,6 @@
-"use client"
+import fs from 'fs';
+
+const code = `"use client"
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trophy, Menu, X, Wallet, Scale, ShieldCheck, ChevronRight, RefreshCw, Loader2, LayoutDashboard, History, Info } from 'lucide-react';
@@ -141,4 +143,7 @@ export default function EliteMatrixMobile() {
       </footer>
     </div>
   );
-}
+}`;
+
+fs.writeFileSync('src/app/page.tsx', code, { encoding: 'utf8' });
+console.log("✅ Arquivo page.tsx responsivo reparado com sucesso!");
