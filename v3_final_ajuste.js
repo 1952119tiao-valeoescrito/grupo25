@@ -1,4 +1,6 @@
-"use client"
+import fs from 'fs';
+
+const code = `"use client"
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -104,9 +106,13 @@ export default function Index() {
         </div>
       )}
 
-      <style jsx global>{`
+      <style jsx global>{\`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
-      `}</style>
+      \`}</style>
     </div>
   );
 }
+`;
+
+fs.writeFileSync('src/app/page.tsx', code, { encoding: 'utf8' });
+console.log("✅ Visual corrigido e link 'Entre aqui' adicionado!");
