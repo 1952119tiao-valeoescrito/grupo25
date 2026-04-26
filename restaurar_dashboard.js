@@ -1,4 +1,6 @@
-"use client"
+import fs from 'fs';
+
+const code = `"use client"
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trophy, RefreshCw, ChevronRight, Loader2, Wallet, LogOut, Scale } from 'lucide-react';
@@ -153,10 +155,13 @@ export default function DashboardElite() {
         </footer>
       </main>
 
-      <style jsx global>{`
+      <style jsx global>{\`
         @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
         .animate-marquee { animation: marquee 35s linear infinite; }
-      `}</style>
+      \`}</style>
     </div>
   );
-}
+}`;
+
+fs.writeFileSync('src/app/dashboard/page.tsx', code, { encoding: 'utf8' });
+console.log("✅ Dashboard Elite restaurado com sucesso!");
