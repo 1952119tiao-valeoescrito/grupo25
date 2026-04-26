@@ -9,15 +9,12 @@ generator client {
 }
 
 model User {
-  id             String   @id @default(cuid())
-  nome           String
-  email          String   @unique
-  senha          String
-  pixKey         String
-  saldoAfiliado  Float    @default(0.0)
-  indicadoPor    String?
-  tickets        Ticket[]
-  createdAt      DateTime @default(now())
+  id        String   @id @default(cuid())
+  nome      String
+  email     String   @unique
+  senha     String
+  pixKey    String
+  tickets   Ticket[]
 }
 
 model Round {
@@ -29,16 +26,12 @@ model Round {
 
 model Ticket {
   id               String   @id @default(cuid())
-  rodadaId         Int
+  rodadaId         Int      @default(1)
   round            Round    @relation(fields: [rodadaId], references: [id])
-  userId           String?
-  user             User?    @relation(fields: [userId], references: [id])
-  usuarioCpf       String
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
   usuarioEmail     String
-  chavePixPremio   String
   prognosticos     String   
   pago             Boolean  @default(false)
   mpPaymentId      String?  @unique
-  acertos          Int?     
-  pagoAoGanhador   Boolean  @default(false)
 }

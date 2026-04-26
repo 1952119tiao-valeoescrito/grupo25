@@ -1,4 +1,82 @@
-"use client"
+import fs from 'fs';
+import { execSync } from 'child_process';
+
+console.log("🚀 Iniciando a ativação do motor funcional Bet-Grupo25...");
+
+// 1. ATUALIZAR O SCHEMA DO BANCO (Tabela de Usuários + Tickets)
+const schema = `datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  nome      String
+  email     String   @unique
+  senha     String
+  pixKey    String
+  tickets   Ticket[]
+}
+
+model Round {
+  id               Int      @id
+  arrecadacaoTotal Int      @default(0)
+  concluida        Boolean  @default(false)
+  tickets          Ticket[]
+}
+
+model Ticket {
+  id               String   @id @default(cuid())
+  rodadaId         Int      @default(1)
+  round            Round    @relation(fields: [rodadaId], references: [id])
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  usuarioEmail     String
+  prognosticos     String   
+  pago             Boolean  @default(false)
+  mpPaymentId      String?  @unique
+}`;
+
+fs.writeFileSync('prisma/schema.prisma', schema);
+
+// 2. CRIAR AS ROTAS DE API (CADASTRO E LOGIN)
+const apiFolders = ['src/app/api/auth/register', 'src/app/api/auth/login', 'src/lib'];
+apiFolders.forEach(f => fs.mkdirSync(f, { recursive: true }));
+
+// API: REGISTER
+fs.writeFileSync('src/app/api/auth/register/route.ts', `
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const user = await prisma.user.create({
+      data: { nome: body.nome, email: body.email, senha: body.senha, pixKey: body.pix }
+    });
+    return NextResponse.json(user);
+  } catch (e) { return NextResponse.json({ error: "Erro ao cadastrar" }, { status: 400 }); }
+}`);
+
+// API: LOGIN
+fs.writeFileSync('src/app/api/auth/login/route.ts', `
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+    const user = await prisma.user.findUnique({ where: { email: body.email } });
+    if (!user || user.senha !== body.senha) return NextResponse.json({ error: "Inválido" }, { status: 401 });
+    return NextResponse.json(user);
+  } catch (e) { return NextResponse.json({ error: "Erro" }, { status: 500 }); }
+}`);
+
+// 3. PÁGINA INICIAL: AGE GATE -> SPLASH -> FORM (IDÊNTICO AOS PRINTS)
+const indexPage = `"use client"
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -76,4 +154,11 @@ export default function Index() {
       )}
     </div>
   );
-}
+}`;
+fs.writeFileSync('src/app/page.tsx', indexPage);
+
+console.log("✅ Motor injetado! Sincronizando banco Neon...");
+try {
+  execSync('npx prisma db push', { stdio: 'inherit' });
+  console.log("\n🚀 TUDO PRONTO! Agora rode o deploy.");
+} catch(e) { console.log("Erro no DB Push. Verifique seu link do Neon no .env"); }
