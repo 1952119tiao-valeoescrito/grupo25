@@ -1,4 +1,6 @@
-"use client"
+import fs from 'fs';
+
+const code = `"use client"
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -124,3 +126,7 @@ export default function LandingPage() {
     </Suspense>
   );
 }
+`;
+
+fs.writeFileSync('src/app/page.tsx', code, { encoding: 'utf8' });
+console.log("✅ Arquivo page.tsx corrigido com Suspense Boundary!");
