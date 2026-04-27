@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { MercadoPagoConfig, Payment } from 'mercadopago';
 import { prisma } from '@/lib/prisma';
 
@@ -10,33 +10,39 @@ export async function POST(req: Request) {
     const body = await req.json();
     const cpfLimpo = body.cpf.replace(/[^0-9]/g, '');
 
-    // Buscamos o usuário pelo e-mail para pegar o ID dele
     const user = await prisma.user.findUnique({ where: { email: body.email } });
     if (!user) return NextResponse.json({ error: "Usuário não logado" }, { status: 401 });
 
+    // Salva o Bilhete com as 25 coordenadas
     const ticket = await prisma.ticket.create({
       data: {
         rodadaId: 1,
-        userId: user.id, // O BILHETE AGORA TEM DONO!
+        userId: user.id,
         usuarioCpf: cpfLimpo,
         usuarioEmail: body.email,
         chavePixPremio: body.pixKey || "N/A",
-        prognosticos: JSON.stringify(body.prognosticos || []),
+        prognosticos: JSON.stringify(body.prognosticos), // Salva a malha 5x5
       }
     });
 
     const mpRes = await payment.create({
       body: {
         transaction_amount: 10,
-        description: "Aposta Bet-Grupo25 Matrix",
+        description: "Bilhete Bet-Grupo25 Matrix",
         payment_method_id: 'pix',
         external_reference: ticket.id,
+        notification_url: process.env.NEXT_PUBLIC_URL + '/api/pix/webhook',
         payer: { email: body.email, identification: { type: 'CPF', number: cpfLimpo } }
       }
     });
 
-    return NextResponse.json({ qrCode: mpRes.point_of_interaction?.qr_code });
+    // Retorna o QR Code e o ID do bilhete para o redirecionamento
+    return NextResponse.json({ 
+      qrCode: mpRes.point_of_interaction?.qr_code, 
+      ticketId: ticket.id 
+    });
   } catch (e) { 
-    return NextResponse.json({ error: "Falha na Matrix" }, { status: 500 }); 
+    console.error(e);
+    return NextResponse.json({ error: "Erro ao processar" }, { status: 500 }); 
   }
 }
