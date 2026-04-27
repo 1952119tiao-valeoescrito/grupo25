@@ -1,4 +1,6 @@
-"use client"
+import fs from 'fs';
+
+const code = `"use client"
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronDown, Trophy, ShieldCheck, Scale, Zap } from 'lucide-react';
@@ -138,9 +140,9 @@ function LandingContent() {
         </div>
       )}
 
-      <style jsx global>{`
+      <style jsx global>{\`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
-      `}</style>
+      \`}</style>
     </div>
   );
 }
@@ -151,7 +153,7 @@ function FaqItem({ title, text, isOpen, onClick }) {
       <button onClick={onClick} className="w-full p-6 flex justify-between items-center text-left text-[11px] font-bold uppercase tracking-widest hover:bg-white/5 transition-all text-white">
         {title} <span className="text-yellow-500 text-lg">{isOpen ? '-' : '+'}</span>
       </button>
-      <div className={`transition-all duration-300 overflow-hidden ${isOpen ? 'max-h-96' : 'max-h-0'}`}>
+      <div className={\`transition-all duration-300 overflow-hidden \${isOpen ? 'max-h-96' : 'max-h-0'}\`}>
         <p className="p-8 pt-0 text-slate-400 text-sm leading-relaxed italic text-justify border-t border-white/5 bg-black/20">
           {text}
         </p>
@@ -161,3 +163,7 @@ function FaqItem({ title, text, isOpen, onClick }) {
 }
 
 export default function Index() { return <Suspense fallback={null}><LandingContent /></Suspense>; }
+`;
+
+fs.writeFileSync('src/app/page.tsx', code, { encoding: 'utf8' });
+console.log("✅ Arquivo page.tsx restaurado com FAQ e Regulamento!");
