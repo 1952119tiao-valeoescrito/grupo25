@@ -68,20 +68,38 @@ export default function DashboardOperacional() {
   useEffect(() => { if(mounted) gerarMalha(); }, [mounted]);
 
   const handleConfirmar = async () => {
+    if (loading) return;
     setLoading(true);
     try {
       const res = await fetch('/api/pix/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: user.email, cpf: user.pixKey, prognosticos: matriz.flat(), rodadaId: 1 })
+        body: JSON.stringify({ 
+          email: user.email, 
+          cpf: user.pixKey, 
+          prognosticos: matriz.flat(), 
+          rodadaId: 1 
+        })
       });
       const data = await res.json();
-      if(data.qrCode) {
-        setQrCode(data.qrCode);
-        localStorage.setItem('ULTIMO_BILHETE', JSON.stringify({ id: data.ticketId, coords: matriz.flat(), qrCode: data.qrCode }));
-        if(data.ticketId) router.push('/bilhete/' + data.ticketId);
+      if (data.qrCode && data.ticketId) {
+        // Salva para o certificado ler
+        const infoBilhete = {
+          id: data.ticketId,
+          coords: matriz.flat(),
+          qrCode: data.qrCode,
+          usuario: user.nome,
+          data: new Date().toLocaleString('pt-BR')
+        };
+        localStorage.setItem('CERTIFICADO_G25', JSON.stringify(infoBilhete));
+        // REDIRECIONA PARA O CERTIFICADO
+        router.push('/bilhete/' + data.ticketId);
+      } else {
+        alert("Erro ao gerar Pix. Verifique seu token.");
       }
-    } catch (e) { alert("Erro de rede"); }
+    } catch (e) {
+      alert("Erro de conexão com o servidor.");
+    }
     setLoading(false);
   };
 

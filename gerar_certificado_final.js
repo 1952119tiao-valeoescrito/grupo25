@@ -1,4 +1,65 @@
-"use client"
+import fs from 'fs';
+
+console.log("📜 Ativando a emissão de Certificados Oficiais...");
+
+// 1. ATUALIZAR O DASHBOARD (VINCULAR O BOTÃO LARANJA)
+const dashboardPath = 'src/app/dashboard/page.tsx';
+if (fs.existsSync(dashboardPath)) {
+    let content = fs.readFileSync(dashboardPath, 'utf8');
+    
+    // Inserindo a lógica de confirmação e redirecionamento
+    const logicReplace = `
+  const handleConfirmar = async () => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const res = await fetch('/api/pix/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: user.email, 
+          cpf: user.pixKey, 
+          prognosticos: matriz.flat(), 
+          rodadaId: 1 
+        })
+      });
+      const data = await res.json();
+      if (data.qrCode && data.ticketId) {
+        // Salva para o certificado ler
+        const infoBilhete = {
+          id: data.ticketId,
+          coords: matriz.flat(),
+          qrCode: data.qrCode,
+          usuario: user.nome,
+          data: new Date().toLocaleString('pt-BR')
+        };
+        localStorage.setItem('CERTIFICADO_G25', JSON.stringify(infoBilhete));
+        // REDIRECIONA PARA O CERTIFICADO
+        router.push('/bilhete/' + data.ticketId);
+      } else {
+        alert("Erro ao gerar Pix. Verifique seu token.");
+      }
+    } catch (e) {
+      alert("Erro de conexão com o servidor.");
+    }
+    setLoading(false);
+  };
+`.trim();
+
+    // Substitui a função vazia pela real
+    content = content.replace(/const handleConfirmar = async \(\) => \{[\s\S]*?\};/, logicReplace);
+    
+    // Garante que o botão laranja chama a função
+    content = content.replace(/Confirmar Certificado<\/button>/, 'Confirmar Certificado</button>');
+    content = content.replace(/onClick=\{handleConfirmar\}/g, 'onClick={handleConfirmar}');
+
+    fs.writeFileSync(dashboardPath, content);
+    console.log("✅ Botão Laranja ativado no Dashboard!");
+}
+
+// 2. REESCREVER O CERTIFICADO (O LAYOUT QUE VOCÊ APROVOU)
+const bilhetePath = 'src/app/bilhete/[id]/page.tsx';
+const bilheteCode = `"use client"
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trophy, Printer, ChevronLeft, ShieldCheck } from 'lucide-react';
@@ -37,9 +98,9 @@ export default function CertificadoG25() {
 
         <section className="grid md:grid-cols-2 gap-12 mb-12">
             <div className="space-y-6">
-                <div><p className="text-[9px] text-slate-500 font-black uppercase mb-1 tracking-widest">ID do Bilhete</p><p className="font-mono font-bold text-white text-lg print:text-black">#${data.id.substring(0,12)}</p></div>
-                <div><p className="text-[9px] text-slate-500 font-black uppercase mb-1 tracking-widest">Apostador</p><p className="font-bold text-white print:text-black uppercase">${data.usuario}</p></div>
-                <div><p className="text-[9px] text-slate-500 font-black uppercase mb-1 tracking-widest">Data do Registro</p><p className="font-bold text-slate-400 print:text-black">${data.data}</p></div>
+                <div><p className="text-[9px] text-slate-500 font-black uppercase mb-1 tracking-widest">ID do Bilhete</p><p className="font-mono font-bold text-white text-lg print:text-black">#\${data.id.substring(0,12)}</p></div>
+                <div><p className="text-[9px] text-slate-500 font-black uppercase mb-1 tracking-widest">Apostador</p><p className="font-bold text-white print:text-black uppercase">\${data.usuario}</p></div>
+                <div><p className="text-[9px] text-slate-500 font-black uppercase mb-1 tracking-widest">Data do Registro</p><p className="font-bold text-slate-400 print:text-black">\${data.data}</p></div>
                 
                 <div className="mt-10">
                    <h3 className="text-[10px] font-black text-cyan-500 uppercase tracking-[0.4em] mb-6 italic">Sua Malha Matrix 5x5</h3>
@@ -75,3 +136,8 @@ export default function CertificadoG25() {
     </div>
   );
 }
+`;
+
+if (!fs.existsSync('src/app/bilhete/[id]')) fs.mkdirSync('src/app/bilhete/[id]', { recursive: true });
+fs.writeFileSync(bilhetePath, bilheteCode, { encoding: 'utf8' });
+console.log("✅ Página de Certificado (Bilhete) Restaurada e Vinculada!");
