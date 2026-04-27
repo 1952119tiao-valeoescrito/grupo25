@@ -1,4 +1,17 @@
-"use client"
+import fs from 'fs';
+import path from 'path';
+
+console.log("🎯 Organizando Rotas: Definindo Início e Dashboard separadamente...");
+
+const writeFile = (filePath, content) => {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(filePath, content.trim(), { encoding: 'utf8' });
+  console.log(`✅ Arquivo escrito: ${filePath}`);
+};
+
+// --- 1. CÓDIGO DA PÁGINA INICIAL (O FLUXO COMPLETO) ---
+const landingCode = `"use client"
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -103,3 +116,7 @@ function LandingContent() {
 }
 
 export default function Index() { return <Suspense fallback={null}><LandingContent /></Suspense>; }
+`;
+
+writeFile('src/app/page.tsx', landingCode);
+console.log("🚀 Fluxo de Entrada Finalizado!");
