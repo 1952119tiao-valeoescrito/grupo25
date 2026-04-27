@@ -1,4 +1,6 @@
-"use client"
+import fs from 'fs';
+
+const code = `"use client"
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trophy, RefreshCw, LogOut, HelpCircle, LayoutDashboard, History } from 'lucide-react';
@@ -142,12 +144,16 @@ export default function DashboardElite() {
         <p className="text-[10px] font-black uppercase tracking-[0.5em]">© 2026 BET-GRUPO25 | MATRIX PRO | NEON DATABASE</p>
       </footer>
 
-      <style jsx global>{`
+      <style jsx global>{\`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
         .font-elite { font-family: 'Orbitron', sans-serif; }
         @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
         .animate-marquee { animation: marquee 35s linear infinite; }
-      `}</style>
+      \`}</style>
     </div>
   );
 }
+`;
+
+fs.writeFileSync('src/app/dashboard/page.tsx', code, { encoding: 'utf8' });
+console.log("✅ Card Matrix limpo! A opacidade foi removida.");
