@@ -1,4 +1,6 @@
-"use client"
+import fs from 'fs';
+
+const code = `"use client"
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -113,11 +115,15 @@ function LandingFlow() {
         </div>
       )}
 
-      <style jsx global>{`
+      <style jsx global>{\`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
-      `}</style>
+      \`}</style>
     </div>
   );
 }
 
 export default function Index() { return <Suspense fallback={null}><LandingFlow /></Suspense>; }
+`;
+
+fs.writeFileSync('src/app/page.tsx', code, { encoding: 'utf8' });
+console.log("✅ Sequência Oficial Restaurada [Satélite -> Idade -> Splash -> Cadastro]");
