@@ -1,4 +1,23 @@
-"use client"
+import fs from 'fs';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+async function finalizarTudo() {
+  console.log("🛠️ Iniciando sincronização final (Layout + Banco)...");
+
+  // 1. GARANTIR RODADA NO BANCO NEON
+  try {
+    await prisma.round.upsert({
+      where: { id: 1 },
+      update: {},
+      create: { id: 1, arrecadacaoTotal: 0, concluida: false }
+    });
+    console.log("✅ Banco de Dados: Rodada #1 ativada!");
+  } catch (e) { console.error("❌ Erro no banco:", e.message); }
+
+  // 2. REESCREVER O DASHBOARD COM O LAYOUT EXATO DOS PRINTS
+  const dashCode = `"use client"
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trophy, RefreshCw, ChevronRight, Loader2, LogOut, Wallet, Scale, HelpCircle } from 'lucide-react';
@@ -216,12 +235,19 @@ export default function DashboardElite() {
          <HelpCircle size={28} />
       </div>
 
-      <style jsx global>{`
+      <style jsx global>{\`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
         .font-elite { font-family: 'Orbitron', sans-serif; }
         @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
         .animate-marquee { animation: marquee 35s linear infinite; }
-      `}</style>
+      \`}</style>
     </div>
   );
 }
+`;
+  fs.writeFileSync('src/app/dashboard/page.tsx', dashCode);
+  console.log("✅ Dashboard V100 instalado com a hierarquia correta!");
+  await prisma.$disconnect();
+}
+
+finalizarTudo();
