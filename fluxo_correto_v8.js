@@ -1,4 +1,17 @@
-"use client"
+import fs from 'fs';
+import path from 'path';
+
+console.log("🚀 Reorganizando fluxo: Acesso ao Satélite agora é a Página Inicial!");
+
+const writeFile = (filePath, content) => {
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(filePath, content.trim(), { encoding: 'utf8' });
+  console.log(`✅ Atualizado: ${filePath}`);
+};
+
+// --- 1. PÁGINA INICIAL (O PORTAL DO SATÉLITE + SEQUÊNCIA COMPLETA) ---
+const indexCode = `"use client"
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronDown, Trophy } from 'lucide-react';
@@ -121,3 +134,17 @@ function LandingContent() {
 }
 
 export default function Index() { return <Suspense fallback={null}><LandingContent /></Suspense>; }
+`;
+
+writeFile('src/app/page.tsx', indexCode);
+
+// --- LIMPEZA DE ARQUIVOS CONFLITANTES NA PASTA PUBLIC ---
+const publicFiles = ['public/index.html', 'public/dashboard.html', 'public/acesso.html'];
+publicFiles.forEach(f => {
+  if (fs.existsSync(f)) {
+    fs.unlinkSync(f);
+    console.log(`🗑️ Removido arquivo estático conflitante: ${f}`);
+  }
+});
+
+console.log("\n🚀 FLUXO REORGANIZADO! Agora a sequência começa na página inicial.");
