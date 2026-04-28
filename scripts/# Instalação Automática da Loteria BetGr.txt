@@ -1,0 +1,137 @@
+# Instalação Automática da Loteria BetGrupo25 Oficial (Windows PowerShell)
+
+$projectName = "loteria-bet-grupo25"
+echo "🚀 Iniciando instalacao automatizada no Windows..."
+
+# 1. Criar pastas
+New-Item -ItemType Directory -Path "$projectName\backend\src\controllers" -Force
+New-Item -ItemType Directory -Path "$projectName\backend\src\routes" -Force
+New-Item -ItemType Directory -Path "$projectName\backend\prisma" -Force
+New-Item -ItemType Directory -Path "$projectName\frontend\src\components" -Force
+New-Item -ItemType Directory -Path "$projectName\blockchain" -Force
+
+Set-Location $projectName
+
+# 2. Configurar BACKEND
+Set-Location backend
+npm init -y
+npm install express @prisma/client mercadopago bcryptjs jsonwebtoken cors dotenv uuid ethers
+
+# Criar Schema Prisma (Banco de Dados Web2)
+@"
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+generator client {
+  provider = "prisma-client-js"
+}
+model User {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String   @unique
+  telefone  String
+  cpf       String   @unique
+  password  String
+  balance   Float    @default(0)
+  wallet    String?
+}
+"@ | Out-File -FilePath "prisma\schema.prisma" -Encoding utf8
+
+# Criar Controller com Cadastro e Mercado Pago
+@"
+const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
+const prisma = new PrismaClient();
+
+exports.register = async (req, res) => {
+    const { nome, email, telefone, cpf, password } = req.body;
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = await prisma.user.create({
+            data: { nome, email, telefone, cpf, password: hashedPassword }
+        });
+        res.json({ success: true, userId: user.id });
+    } catch (e) { 
+        res.status(400).json({ error: "Erro: Email ou CPF ja cadastrado" }); 
+    }
+};
+
+exports.getPix = async (req, res) => {
+    // Simulacao de integracao Mercado Pago para ambiente local
+    res.json({ qrCode: "00020101021226830014br.gov.bcb.pix...", status: "pending" });
+};
+"@ | Out-File -FilePath "src\controllers\appController.js" -Encoding utf8
+
+# Criar Servidor
+@"
+const express = require('express');
+const cors = require('cors');
+const appController = require('./controllers/appController');
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+app.post('/api/register', appController.register);
+app.get('/api/pix', appController.getPix);
+
+app.listen(3001, () => console.log('Servidor Backend rodando em http://localhost:3001'));
+"@ | Out-File -FilePath "src\server.js" -Encoding utf8
+
+npx prisma generate
+Set-Location ..
+
+# 3. Configurar FRONTEND
+npx create-vite frontend --template react -y
+Set-Location frontend
+npm install
+npm install ethers axios lucide-react
+
+# Criar interface principal
+@"
+import React, { useState } from 'react';
+import axios from 'axios';
+
+export default function App() {
+  const [form, setForm] = useState({ nome: '', email: '', cpf: '', telefone: '', password: '' });
+  const [isLogged, setIsLogged] = useState(false);
+
+  const handleRegister = async () => {
+    try {
+        await axios.post('http://localhost:3001/api/register', form);
+        setIsLogged(true);
+        alert('Conta criada com sucesso!');
+    } catch (e) { alert('Erro no cadastro'); }
+  };
+
+  return (
+    <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
+      {!isLogged ? (
+        <div style={{ maxWidth: '400px', margin: 'auto' }}>
+          <h2>Cadastro Loteria Grupo 25</h2>
+          <input placeholder="Nome" onChange={e => setForm({...form, nome: e.target.value})} style={{display:'block', width:'100%', marginBottom:'10px'}} />
+          <input placeholder="Email" onChange={e => setForm({...form, email: e.target.value})} style={{display:'block', width:'100%', marginBottom:'10px'}} />
+          <input placeholder="CPF" onChange={e => setForm({...form, cpf: e.target.value})} style={{display:'block', width:'100%', marginBottom:'10px'}} />
+          <input placeholder="Telefone" onChange={e => setForm({...form, telefone: e.target.value})} style={{display:'block', width:'100%', marginBottom:'10px'}} />
+          <input type="password" placeholder="Senha" onChange={e => setForm({...form, password: e.target.value})} style={{display:'block', width:'100%', marginBottom:'10px'}} />
+          <button onClick={handleRegister} style={{width:'100%', padding:'10px', background:'green', color:'white'}}>Cadastrar e Jogar</button>
+        </div>
+      ) : (
+        <div style={{ textAlign: 'center' }}>
+          <h2>Bem-vindo a Loteria Hibrida!</h2>
+          <p>Deposite via PIX e envie seus palpites para o Smart Contract.</p>
+          <button style={{padding:'10px'}}>Conectar Carteira MetaMask</button>
+        </div>
+      )}
+    </div>
+  );
+}
+"@ | Out-File -FilePath "src\App.jsx" -Encoding utf8
+
+Set-Location ..
+
+echo "------------------------------------------------------------"
+echo "✅ INSTALACAO CONCLUIDA COM SUCESSO!"
+echo "Para rodar o backend: cd backend; node src/server.js"
+echo "Para rodar o frontend: cd frontend; npm run dev"
+echo "------------------------------------------------------------"
