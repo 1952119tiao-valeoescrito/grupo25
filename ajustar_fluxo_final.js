@@ -1,4 +1,8 @@
-"use client"
+import fs from 'fs';
+
+const path = 'src/app/page.tsx';
+
+const code = `"use client"
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -95,3 +99,7 @@ function LandingContent() {
 }
 
 export default function Index() { return <Suspense fallback={null}><LandingContent /></Suspense>; }
+`;
+
+fs.writeFileSync(path, code, { encoding: 'utf8' });
+console.log("✅ Sequência Oficial Restaurada! O Satélite agora é a porta de entrada.");
