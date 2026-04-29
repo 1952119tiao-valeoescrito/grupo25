@@ -1,4 +1,6 @@
-"use client"
+import fs from 'fs';
+
+const code = `"use client"
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trophy, RefreshCw, ChevronRight, Loader2, LogOut, Wallet, Scale, HelpCircle } from 'lucide-react';
@@ -193,9 +195,13 @@ export default function DashboardElite() {
         </footer>
       </main>
 
-      <style jsx global>{`
+      <style jsx global>{\`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
-      `}</style>
+      \`}</style>
     </div>
   );
 }
+`;
+
+fs.writeFileSync('src/app/dashboard/page.tsx', code, { encoding: 'utf8' });
+console.log("✅ Dashboard FINALIZADO, BLINDADO E NÍTIDO!");
