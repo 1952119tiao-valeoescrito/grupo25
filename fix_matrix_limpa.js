@@ -1,4 +1,6 @@
-"use client"
+import fs from 'fs';
+
+const code = `"use client"
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trophy, RefreshCw, ChevronRight, Loader2, LogOut, Wallet, Scale, HelpCircle } from 'lucide-react';
@@ -145,3 +147,7 @@ export default function DashboardElite() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync('src/app/dashboard/page.tsx', code);
+console.log("✅ Lógica de 'Matrix Vazia' e 'Mesa Limpa' instalada!");
