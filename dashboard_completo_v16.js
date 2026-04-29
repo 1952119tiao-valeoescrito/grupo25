@@ -1,4 +1,6 @@
-"use client"
+import fs from 'fs';
+
+const code = `"use client"
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trophy, RefreshCw, ChevronRight, Loader2, LogOut, Wallet, Scale, HelpCircle } from 'lucide-react';
@@ -201,12 +203,16 @@ export default function DashboardElite() {
          <HelpCircle size={28} />
       </div>
 
-      <style jsx global>{`
+      <style jsx global>{\`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
         .font-elite { font-family: 'Orbitron', sans-serif; }
         @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
         .animate-marquee { animation: marquee 40s linear infinite; }
-      `}</style>
+      \`}</style>
     </div>
   );
 }
+`;
+
+fs.writeFileSync('src/app/dashboard/page.tsx', code, { encoding: 'utf8' });
+console.log("✅ Dashboard ORIGINAL 100% Restaurado com todos os cards!");
