@@ -1,4 +1,23 @@
-"use client"
+import fs from 'fs';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+async function executar() {
+  console.log("🛠️ Iniciando Conserto Final: Matrix Vazia + Fim do Loop...");
+
+  // 1. Garante Rodada 1 no Neon
+  try {
+    await prisma.round.upsert({
+      where: { id: 1 },
+      update: {},
+      create: { id: 1, arrecadacaoTotal: 0, concluida: false }
+    });
+    console.log("✅ Banco Neon: Rodada #1 verificada.");
+  } catch (e) { console.log("Aviso: Rodada já existente."); }
+
+  // 2. Dashboard com Matrix que Reseta
+  const dashCode = `"use client"
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trophy, RefreshCw, ChevronRight, Loader2, LogOut } from 'lucide-react';
@@ -111,3 +130,11 @@ export default function DashboardElite() {
     </div>
   );
 }
+`;
+
+  fs.writeFileSync('src/app/dashboard/page.tsx', dashCode, { encoding: 'utf8' });
+  console.log("✅ Dashboard atualizado: Matrix resetando e Loop protegido!");
+  await prisma.$disconnect();
+}
+
+executar();
