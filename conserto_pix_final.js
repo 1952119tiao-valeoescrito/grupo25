@@ -1,3 +1,6 @@
+import fs from 'fs';
+
+const code = `
 import { NextResponse } from 'next/server';
 import { MercadoPagoConfig, Payment } from 'mercadopago';
 import { prisma } from '@/lib/prisma';
@@ -63,3 +66,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: errorMsg }, { status: 500 });
   }
 }
+`.trim();
+
+fs.writeFileSync('src/app/api/pix/create/route.ts', code, { encoding: 'utf8' });
+console.log("✅ API de Pix recalibrada e protegida contra loops!");
