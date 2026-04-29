@@ -16,91 +16,59 @@ export default function CertificadoG25() {
   if (!data) return null;
 
   return (
-    <div className="min-h-screen bg-[#030712] flex flex-col items-center justify-start p-4 md:p-10 text-slate-200 font-sans print:bg-white print:p-0">
-      <div className="bg-slate-900/90 border-2 border-cyan-500/30 w-full max-w-4xl rounded-[3rem] p-8 md:p-12 shadow-2xl relative overflow-hidden print:shadow-none print:border-slate-300 print:rounded-none print:bg-white print:text-black print:max-w-full">
-        
-        {/* Selo Autenticado */}
-        <div className="absolute top-10 right-10 border-4 border-emerald-500/40 text-emerald-500/40 px-6 py-2 rounded-xl font-black uppercase text-xl rotate-[-15deg] print:border-black print:text-black print:opacity-20">
-          Autenticado
-        </div>
+    <div className="min-h-screen bg-[#030712] flex flex-col items-center justify-center p-4 md:p-10 text-slate-200 font-sans print:bg-white print:p-0">
+      <div className="bg-slate-900/90 border-2 border-cyan-500/30 w-full max-w-4xl rounded-[3rem] p-8 md:p-16 shadow-2xl relative overflow-hidden print:bg-white print:text-black print:shadow-none print:border-black">
+        <div className="absolute top-10 right-10 border-4 border-emerald-500/40 text-emerald-500/40 px-6 py-2 rounded-xl font-black uppercase text-xl rotate-[-15deg] print:border-black print:text-black">Autenticado</div>
 
-        <header className="flex flex-col md:flex-row justify-between items-center border-b border-cyan-900/30 pb-6 mb-6 gap-6 print:border-black">
+        <header className="flex flex-col md:flex-row justify-between items-center border-b border-cyan-900/30 pb-8 mb-8 gap-6 print:border-black">
           <div className="flex items-center gap-4">
-            <div className="bg-cyan-600 p-2 rounded-xl print:bg-black"><Trophy className="text-white" size={28}/></div>
-            <h1 className="text-2xl font-black italic tracking-tighter uppercase text-cyan-400 print:text-black" style={{fontFamily: 'Orbitron'}}>BET-GRUPO25</h1>
+            <div className="bg-cyan-600 p-3 rounded-2xl shadow-lg print:bg-black"><Trophy className="text-white" size={32}/></div>
+            <h1 className="text-3xl font-black italic tracking-tighter uppercase text-cyan-400 print:text-black" style={{fontFamily: 'Orbitron'}}>BET-GRUPO25</h1>
           </div>
           <div className="text-center md:text-right">
-             <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest print:border-black print:text-black italic">✓ Aposta Auditada & Registrada</span>
-             <p className="text-[9px] text-slate-500 mt-2 uppercase font-bold print:text-black">Protocolo Blockchain Base Mainnet</p>
+             <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest italic print:border-black print:text-black">Aposta Registrada</span>
           </div>
         </header>
 
-        <section className="grid grid-cols-2 gap-8 mb-8 print:gap-4">
-            <div className="space-y-4">
-                <div>
-                  <p className="text-[8px] text-slate-500 font-black uppercase mb-1 tracking-widest">ID do Bilhete</p>
-                  <p className="font-mono font-bold text-white text-sm print:text-black">#{data.id}</p>
-                </div>
-                <div>
-                  <p className="text-[8px] text-slate-500 font-black uppercase mb-1 tracking-widest">Apostador</p>
-                  <p className="font-bold text-white uppercase text-sm print:text-black">{data.usuario}</p>
-                </div>
-                {/* --- CAMPO CHAVE PIX ADICIONADO --- */}
-                <div>
-                  <p className="text-[8px] text-yellow-500 font-black uppercase mb-1 tracking-widest">Chave Pix para Prêmio</p>
-                  <p className="font-bold text-white text-sm print:text-black italic">{data.pixKey || "Vincular no Perfil"}</p>
-                </div>
-                <div>
-                  <p className="text-[8px] text-slate-500 font-black uppercase mb-1 tracking-widest">Data do Registro</p>
-                  <p className="font-bold text-slate-400 text-sm print:text-black">{data.data}</p>
-                </div>
+        <section className="grid md:grid-cols-2 gap-10 mb-10">
+            <div className="space-y-6">
+                <div><p className="text-[9px] text-slate-500 font-black uppercase mb-1">ID do Bilhete</p><p className="font-mono font-bold text-white print:text-black">#{data.id}</p></div>
+                <div><p className="text-[9px] text-slate-500 font-black uppercase mb-1">Apostador</p><p className="font-bold text-white print:text-black uppercase">{data.usuario}</p></div>
+                <div><p className="text-[9px] text-yellow-500 font-black uppercase mb-1">Chave Pix Resgate</p><p className="font-bold text-white print:text-black italic text-sm">{data.pixKey}</p></div>
                 
-                <div className="mt-6">
-                   <h3 className="text-[9px] font-black text-cyan-500 uppercase tracking-[0.3em] mb-4 italic print:text-black">Sua Malha Matrix 5x5</h3>
-                   <div className="grid grid-cols-[80px_repeat(5,1fr)] gap-2 items-center">
-                    {[0,1,2,3,4].map((row) => (
-                      <div key={row} className="contents">
-                        <span className="text-[9px] font-black text-slate-500 text-right pr-2">{row + 1}º Prêmio:</span>
-                        {[0,1,2,3,4].map((col) => (
-                          <div key={col} className="bg-slate-950 border border-cyan-500/20 py-3 rounded-xl flex items-center justify-center font-black text-cyan-400 text-xs print:border-black print:text-black shadow-inner">
-                            {data.coords[row * 5 + col]}
+                <div className="mt-8">
+                   <h3 className="text-[10px] font-black text-cyan-500 uppercase tracking-widest mb-6 italic print:text-black">Sua Malha Matrix 5x5</h3>
+                   <div className="flex flex-col gap-2">
+                      {[0,1,2,3,4].map((i) => (
+                        <div key={i} className="flex items-center gap-3">
+                          <span className="text-[8px] font-black text-slate-500 uppercase w-16 text-right">{i+1} PREMIO:</span>
+                          <div className="flex-1 grid grid-cols-5 gap-1.5">
+                            {[0,1,2,3,4].map((j) => (
+                              <div key={j} className="bg-slate-950 border border-cyan-500/20 py-2 rounded-lg flex items-center justify-center font-black text-cyan-400 text-xs print:border-black print:text-black print:bg-transparent">
+                                {data.coords[i * 5 + j]}
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                    ))}
-                </div>
+                        </div>
                       ))}
                    </div>
                 </div>
             </div>
 
-            <div className="bg-white p-6 rounded-[2.5rem] flex flex-col items-center justify-center shadow-2xl self-center print:shadow-none print:p-2">
-                <p className="text-black font-black uppercase text-[10px] mb-4 no-print">Pague via Pix para Validar</p>
-                <QRCodeSVG value={data.qrCode} size={180} />
-                <p className="text-slate-400 text-[8px] mt-4 font-bold uppercase no-print">Aguardando Pagamento</p>
+            <div className="bg-white p-10 rounded-[3rem] flex flex-col items-center justify-center shadow-2xl self-center no-print">
+                <p className="text-black font-black uppercase text-xs mb-6 tracking-tighter">Pague via Pix para Validar</p>
+                <QRCodeSVG value={data.qrCode} size={220} />
+                <p className="text-slate-400 text-[9px] mt-6 font-bold uppercase animate-pulse">Aguardando Pagamento</p>
             </div>
         </section>
 
-        <footer className="flex flex-col md:flex-row justify-between items-center pt-6 border-t border-cyan-900/30 gap-4 print:border-black">
-           <div className="text-[9px] text-slate-600 font-bold uppercase italic max-w-sm text-center md:text-left print:text-black">
-             A validade deste bilhete é garantida pelo protocolo Neon DB e Oráculo Chainlink VRF. Prêmio bruto de 43,35% conforme Lei 13.756.
-           </div>
-           <div className="flex gap-4 no-print">
-              <button onClick={() => router.push('/dashboard')} className="px-6 py-2 bg-slate-800 text-slate-400 rounded-xl font-bold uppercase text-[9px] border border-white/5">Voltar</button>
-              <button onClick={() => window.print()} className="bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-2 rounded-xl font-black uppercase text-[9px] shadow-lg flex items-center gap-2">
-                <Printer size={14}/> Imprimir
-              </button>
-           </div>
+        <footer className="flex justify-between items-center pt-8 border-t border-cyan-900/30 no-print">
+           <button onClick={() => router.push('/dashboard')} className="text-slate-500 hover:text-white text-[10px] font-bold uppercase underline">Voltar</button>
+           <button onClick={() => window.print()} className="bg-cyan-600 hover:bg-cyan-500 text-white px-8 py-3 rounded-xl font-black uppercase text-xs transition-all flex items-center gap-2">
+             Imprimir Bilhete
+           </button>
         </footer>
       </div>
-
-      <style jsx global>{`
-        @media print {
-          body { background: white !important; }
-          .no-print { display: none !important; }
-          * { -webkit-print-color-adjust: exact !important; }
-        }
-      `}</style>
     </div>
   );
 }
