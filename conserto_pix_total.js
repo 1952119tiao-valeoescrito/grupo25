@@ -1,3 +1,8 @@
+import fs from 'fs';
+
+const apiPath = 'src/app/api/pix/create/route.ts';
+
+const code = `
 import { NextResponse } from 'next/server';
 import { MercadoPagoConfig, Payment } from 'mercadopago';
 import { prisma } from '@/lib/prisma';
@@ -61,3 +66,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: erroReal }, { status: 500 });
   }
 }
+`.trim();
+
+fs.writeFileSync(apiPath, code, { encoding: 'utf8' });
+console.log("✅ API de Pix recalibrada para aceitar dados reais!");
