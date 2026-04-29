@@ -1,4 +1,25 @@
-"use client"
+import fs from 'fs';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+async function main() {
+  console.log("🚀 Iniciando a Finalização da Bet-Grupo25...");
+
+  // 1. DESTRAVAR O BANCO DE DADOS (CRIAR RODADA 1)
+  try {
+    await prisma.round.upsert({
+      where: { id: 1 },
+      update: {},
+      create: { id: 1, arrecadacaoTotal: 0, concluida: false }
+    });
+    console.log("✅ Banco Neon: Rodada #1 configurada!");
+  } catch (e) {
+    console.log("⚠️ Nota: Se o banco já estiver configurado, ignore este aviso.");
+  }
+
+  // 2. REESCREVER O DASHBOARD COM O LAYOUT EXATO E TEXTO CORRIGIDO
+  const dashCode = `"use client"
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trophy, RefreshCw, ChevronRight, Loader2, LogOut, Wallet, Scale, HelpCircle } from 'lucide-react';
@@ -218,3 +239,11 @@ export default function DashboardElite() {
     </div>
   );
 }
+`;
+
+  fs.writeFileSync('src/app/dashboard/page.tsx', dashCode, { encoding: 'utf8' });
+  console.log("✅ Dashboard V100 instalado com Sucesso!");
+  await prisma.$disconnect();
+}
+
+main();
