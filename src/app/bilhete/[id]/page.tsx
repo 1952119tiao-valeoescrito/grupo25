@@ -57,11 +57,18 @@ export default function CertificadoG25() {
                 
                 <div className="mt-6">
                    <h3 className="text-[9px] font-black text-cyan-500 uppercase tracking-[0.3em] mb-4 italic print:text-black">Sua Malha Matrix 5x5</h3>
-                   <div className="grid grid-cols-5 gap-2">
-                      {data.coords.map((c, i) => (
-                        <div key={i} className="bg-slate-950 border border-cyan-500/20 py-2 rounded-lg flex items-center justify-center font-black text-cyan-400 text-[10px] print:border-black print:text-black print:bg-transparent">
-                          {c}
-                        </div>
+                   <div className="grid grid-cols-[80px_repeat(5,1fr)] gap-2 items-center">
+                    {[0,1,2,3,4].map((row) => (
+                      <div key={row} className="contents">
+                        <span className="text-[9px] font-black text-slate-500 text-right pr-2">{row + 1}º Prêmio:</span>
+                        {[0,1,2,3,4].map((col) => (
+                          <div key={col} className="bg-slate-950 border border-cyan-500/20 py-3 rounded-xl flex items-center justify-center font-black text-cyan-400 text-xs print:border-black print:text-black shadow-inner">
+                            {data.coords[row * 5 + col]}
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                </div>
                       ))}
                    </div>
                 </div>

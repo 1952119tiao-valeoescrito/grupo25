@@ -177,10 +177,10 @@ export default function DashboardEliteTotal() {
           <div className="lg:col-span-2 bg-[#0d1117] border border-cyan-500/30 p-6 md:p-10 rounded-[3rem] shadow-2xl">
              <h2 className="text-yellow-500 font-black text-[11px] uppercase mb-8 tracking-widest text-center italic font-elite">Sua Malha de Coordenadas Matrix 5x5</h2>
              <div className="bg-black/90 border border-slate-800 rounded-[2rem] p-4 md:p-10 mb-8 shadow-inner">
-                <div className="grid grid-cols-6 gap-1.5 md:gap-4 items-center">
+                <div className="grid grid-cols-[80px_repeat(5,1fr)] gap-1.5 md:gap-4 items-center">
                   {[0,1,2,3,4].map((i) => (
                     <div key={i} className="contents">
-                      <span className="text-[8px] md:text-[10px] font-black text-cyan-500/40 text-right pr-1 italic font-elite">{i+1}º</span>
+                      <span className="text-[8px] md:text-[10px] font-black text-cyan-500/40 text-right pr-1 italic font-elite">{i+1}º Prêmio:</span>
                       {[0,1,2,3,4].map((j) => (
                         <div key={j} className="aspect-square bg-slate-900 border border-cyan-500/30 rounded-lg flex items-center justify-center text-[10px] md:text-sm font-black text-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.1)]">
                           {matriz[i] ? matriz[i][j] : '--/--'}
