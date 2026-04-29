@@ -1,4 +1,6 @@
-"use client"
+import fs from 'fs';
+
+const code = `"use client"
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trophy, RefreshCw, ChevronRight, Loader2, LogOut, Scale } from 'lucide-react';
@@ -132,3 +134,7 @@ export default function DashboardElite() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync('src/app/dashboard/page.tsx', code, { encoding: 'utf8' });
+console.log("✅ Dashboard atualizado! Matrix limpa e texto corrigido.");
