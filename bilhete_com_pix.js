@@ -1,4 +1,6 @@
-"use client"
+import fs from 'fs';
+
+const code = `"use client"
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trophy, Printer, ChevronLeft } from 'lucide-react';
@@ -87,13 +89,26 @@ export default function CertificadoG25() {
         </footer>
       </div>
 
-      <style jsx global>{`
+      <style jsx global>{\`
         @media print {
           body { background: white !important; }
           .no-print { display: none !important; }
           * { -webkit-print-color-adjust: exact !important; }
         }
-      `}</style>
+      \`}</style>
     </div>
   );
 }
+`;
+
+fs.writeFileSync('src/app/bilhete/[id]/page.tsx', code, { encoding: 'utf8' });
+
+// AJUSTE NO DASHBOARD PARA PASSAR A CHAVE PIX
+const dashPath = 'src/app/dashboard/page.tsx';
+if (fs.existsSync(dashPath)) {
+    let dashContent = fs.readFileSync(dashPath, 'utf8');
+    dashContent = dashContent.replace("qrCode: data.qrCode,", "qrCode: data.qrCode, pixKey: user.pixKey,");
+    fs.writeFileSync(dashPath, dashContent);
+}
+
+console.log("✅ Bilhete oficializado com Chave Pix e Layout de Impressão!");
