@@ -8,31 +8,37 @@ const payment = new Payment(client);
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    // O Mercado Pago envia o ID do pagamento de várias formas
+    // O ID pode vir em body.data.id (notificação de pagamento) 
     const paymentId = body.data?.id || body.id;
 
-    if (paymentId) {
-      console.log("📡 Notificação recebida: " + paymentId);
+    if (paymentId && (body.type === 'payment' || body.action === 'payment.created' || !body.type)) {
+      console.log("📡 Processando pagamento: " + paymentId);
       
-      // Consultamos o Mercado Pago para confirmar se é real e se está aprovado
       const p = await payment.get({ id: String(paymentId) });
       
       if (p.status === 'approved') {
-        // Buscamos o bilhete pelo ID que salvamos na 'external_reference'
-        await prisma.ticket.update({
-          where: { id: p.external_reference },
-          data: { 
-            pago: true, 
-            mpPaymentId: String(paymentId) 
-          }
-        });
-        console.log("✅ Bilhete " + p.external_reference + " marcado como PAGO!");
+        const ticketId = p.external_reference;
+
+        if (ticketId) {
+          // ATUALIZAÇÃO ALINHADA COM O NOVO BANCO DE DADOS
+          await prisma.ticket.update({
+            where: { id: ticketId },
+            data: { 
+              pago: true,                        // Coluna antiga (boolean)
+              status_pagamento: 'pago',          // Nova coluna (string)
+              mpPaymentId: String(paymentId)     // Referência do MP
+            }
+          });
+          console.log(`✅ SUCESSO: Bilhete ${ticketId} autenticado!`);
+        }
       }
     }
-    // O Mercado Pago exige resposta 200/201 para parar de enviar notificações
+
     return NextResponse.json({ ok: true }, { status: 200 });
-  } catch (e) {
-    console.error("❌ Erro no Webhook:", e);
-    return NextResponse.json({ error: "Erro interno" }, { status: 200 });
+  } catch (e: any) {
+    console.error("❌ Erro no Webhook:", e.message);
+    // Retornamos 200 mesmo no erro para o Mercado Pago não ficar tentando reenviar
+    return NextResponse.json({ ok: false }, { status: 200 });
   }
 }
+```
