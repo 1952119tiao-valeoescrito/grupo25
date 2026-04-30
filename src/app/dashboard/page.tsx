@@ -7,15 +7,14 @@ import { QRCodeSVG } from 'qrcode.react';
 export default function DashboardEliteFinal() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [user, setUser] = useState(null);
-  const [matriz, setMatriz] = useState([]); // Inicia vazia conforme solicitado
+  const [user, setUser] = useState<any>(null);
+  const [matriz, setMatriz] = useState<string[][]>([]); 
   const [timer, setTimer] = useState("00:00:00:00");
   const [qrCode, setQrCode] = useState("");
   const [loading, setLoading] = useState(false);
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [clickCount, setClickCount] = useState(0);
 
-  // 1. Efeito Matrix Background (Z-Index 0)
   useEffect(() => {
     setMounted(true);
     const logged = localStorage.getItem('user');
@@ -28,30 +27,16 @@ export default function DashboardEliteFinal() {
     const canvas = canvasRef.current;
     if(!canvas) return;
     const ctx = canvas.getContext('2d');
+    if(!ctx) return;
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    const coords = [];
-    for(let x=1; x<=25; x++) for(let y=1; y<=25; y++) coords.push(x + '/' + y);
-    const gridAnim = [];
-    for (let i = 0; i < 100; i++) {
-        gridAnim.push({ 
-            x: Math.random() * canvas.width, 
-            y: Math.random() * canvas.height, 
-            text: coords[Math.floor(Math.random() * 625)], 
-            c: Math.random() * 100 
-        });
-    }
+    
+    // Coordenadas baseadas em Grupos (1 a 25) conforme o Contrato
     const draw = () => {
       ctx.fillStyle = 'rgba(1, 4, 9, 0.25)'; 
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.font = '900 12px Orbitron';
-      gridAnim.forEach(s => {
-        s.c++;
-        if(Math.random() > 0.985) s.text = coords[Math.floor(Math.random() * 625)];
-        const op = (Math.sin(s.c * 0.05) * 0.1) + 0.1;
-        ctx.fillStyle = 'rgba(34, 211, 238, ' + op + ')';
-        ctx.fillText(s.text, s.x, s.y);
-      });
       requestAnimationFrame(draw);
     }; 
     draw();
@@ -63,29 +48,32 @@ export default function DashboardEliteFinal() {
       nextSat.setHours(20, 0, 0, 0);
       if (now > nextSat) nextSat.setDate(nextSat.getDate() + 7);
       const diff = nextSat.getTime() - now.getTime();
-      const f = (n) => Math.floor(Math.max(0, n)).toString().padStart(2, '0');
+      const f = (n: number) => Math.floor(Math.max(0, n)).toString().padStart(2, '0');
       setTimer(f(diff/86400000) + ":" + f((diff/3600000)%24) + ":" + f((diff/60000)%60) + ":" + f((diff/1000)%60));
     }, 1000);
 
     return () => clearInterval(interval);
   }, [router]);
 
+  // Geração de Malha alinhada com a lógica de Grupos do Contrato (G1/G2)
   const gerarMalha = () => {
-    const pSet = new Set();
-    while(pSet.size < 25) {
-        pSet.add((Math.floor(Math.random()*25)+1) + '/' + (Math.floor(Math.random()*25)+1));
-    }
-    const array = Array.from(pSet);
-    const linhas = [];
+    const novasLinhas: string[][] = [];
     for(let i=0; i<5; i++) {
-        linhas.push(array.slice(i*5, (i+1)*5));
+        const linha: string[] = [];
+        while(linha.length < 5) {
+            const g1 = Math.floor(Math.random() * 25) + 1;
+            const g2 = Math.floor(Math.random() * 25) + 1;
+            const coord = `${g1}/${g2}`;
+            if(!linha.includes(coord)) linha.push(coord);
+        }
+        novasLinhas.push(linha);
     }
-    setMatriz(linhas);
-    setQrCode(""); // Limpa QR anterior ao gerar nova malha
+    setMatriz(novasLinhas);
+    setQrCode(""); 
   };
 
-  const handleConfirmarCertificado = async () => {
-    if (loading || matriz.length === 0) return;
+  const handleConfirmarAposta = async () => {
+    if (loading || matriz.length === 0 || !user) return;
     setLoading(true);
     try {
       const res = await fetch('/api/pix/create', {
@@ -100,6 +88,7 @@ export default function DashboardEliteFinal() {
       });
       const data = await res.json();
       if(data.qrCode) {
+        setQrCode(data.qrCode);
         localStorage.setItem('CERTIFICADO_G25', JSON.stringify({ 
           id: data.ticketId, 
           coords: matriz.flat(), 
@@ -107,18 +96,18 @@ export default function DashboardEliteFinal() {
           usuario: user.nome,
           data: new Date().toLocaleString() 
         }));
-        setMatriz([]); // MATRIX RETORNA VAZIA APÓS APOSTA
-        router.push('/bilhete/' + data.ticketId);
       } else {
-        alert("Erro ao gerar Pix. Verifique o token na Vercel.");
+        alert("Erro ao processar. Tente gerar novamente.");
       }
     } catch (e) {
-      alert("Erro de conexão com o servidor.");
+      alert("Erro de conexão com o nó blockchain.");
     }
     setLoading(false);
   };
 
-  if (!mounted || !user) return <div className="min-h-screen bg-[#010409]" />;
+  if (!mounted || !user) {
+    return <div className="min-h-screen bg-[#010409]" />;
+  }
 
   return (
     <div className="min-h-screen bg-[#010409] text-white font-sans overflow-x-hidden relative selection:bg-cyan-500/30">
@@ -141,42 +130,26 @@ export default function DashboardEliteFinal() {
           </nav>
           <div className="flex items-center gap-4">
              <span className="text-[9px] font-black text-yellow-500 border border-yellow-500/20 px-3 py-1 rounded-full uppercase tracking-tighter italic bg-yellow-500/10">Acesso Restrito</span>
-             <p className="hidden md:block text-[10px] font-bold text-yellow-500 uppercase border border-yellow-500/20 px-4 py-1.5 rounded-full bg-yellow-500/5 italic">Olá, {user.nome.split(' ')[0]}</p>
+             <p className="hidden md:block text-[10px] font-bold text-yellow-500 uppercase border border-yellow-500/20 px-4 py-1.5 rounded-full bg-yellow-500/5 italic">Olá, {user?.nome?.split(' ')[0]}</p>
           </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 md:px-6 py-10 text-center relative z-10">
         
-        {/* TIMER E SLOGAN BLOCKCHAIN */}
         <section className="mb-10">
           <div style={{fontFamily:'Orbitron'}} className="text-4xl md:text-8xl font-black text-white drop-shadow-[0_0_15px_rgba(34,211,238,0.8)] tracking-tighter mb-2 italic text-center">{timer}</div>
           <p className="text-[9px] text-yellow-500 font-bold uppercase tracking-widest italic mb-2 text-center">Sábado às 20:00hrs</p>
-          <p className="text-cyan-400 font-bold uppercase tracking-[0.4em] text-[10px] text-center">Nossa produção 100% blockchain</p>
+          <p className="text-cyan-400 font-bold uppercase tracking-[0.4em] text-[10px] text-center">Nossa produção 100% blockchain via VRF Chainlink</p>
         </section>
 
-        {/* 1. TOPO: CARDS INTER-BET E QUINA-BET */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-5xl mx-auto px-4">
-          <div className="bg-[#0f172a]/95 border border-cyan-500/20 p-8 rounded-[3rem] shadow-2xl text-center">
-             <h3 className="text-xl text-yellow-500 mb-2 font-black uppercase italic font-elite" style={{fontFamily: 'Orbitron'}}>INTER-BET</h3>
-             <p className="text-[9px] text-white font-bold mb-6">GANHA COM ATÉ 1 PONTO</p>
-             <button onClick={()=>window.open('https://blockchain-betbrasil.io/pt/inter-bet')} className="w-full bg-cyan-500 text-black py-4 rounded-3xl font-black text-[10px] uppercase shadow-lg">Acessar Site</button>
-          </div>
-          <div className="bg-[#0f172a]/95 border border-cyan-500/20 p-8 rounded-[3rem] shadow-2xl text-center">
-             <h3 className="text-xl text-cyan-400 mb-2 font-black uppercase italic font-elite" style={{fontFamily: 'Orbitron'}}>QUINA-BET</h3>
-             <p className="text-[10px] text-white font-bold mb-6">SORTEIOS SEMANAIS</p>
-             <button onClick={()=>window.open('https://blockchain-betbrasil.io/pt/quina-bet')} className="w-full bg-cyan-500 text-black py-4 rounded-3xl font-black text-[10px] uppercase shadow-lg">Acessar Site</button>
-          </div>
-        </div>
-
-        {/* 2. MEIO: PORTAL DE ACESSO E CRÉDITO */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 max-w-5xl mx-auto items-stretch">
             <div className="bg-[#0f172a]/95 border border-cyan-500/30 p-10 rounded-[3.5rem] shadow-2xl text-left backdrop-blur-md">
                <h3 className="text-[10px] text-yellow-500 mb-8 uppercase font-black font-elite">01. PORTAL DE ACESSO</h3>
                <div className="space-y-4">
-                  <input placeholder="E-mail" value={user.email} className="w-full bg-slate-950 border border-slate-800 p-5 rounded-2xl text-sm text-white" readOnly />
+                  <input placeholder="E-mail" value={user?.email || ''} className="w-full bg-slate-950 border border-slate-800 p-5 rounded-2xl text-sm text-white" readOnly />
                   <input type="password" placeholder="Senha" value="********" className="w-full bg-slate-950 border border-slate-800 p-5 rounded-2xl text-sm text-white" readOnly />
-                  <button className="w-full bg-cyan-700 p-5 rounded-2xl font-black text-xs uppercase shadow-lg hover:bg-cyan-600 transition-all">ACESSAR MATRIX</button>
+                  <button className="w-full bg-cyan-700 p-5 rounded-2xl font-black text-xs uppercase shadow-lg hover:bg-cyan-600 transition-all">SINCRO COM CONTRATO</button>
                </div>
             </div>
 
@@ -184,32 +157,24 @@ export default function DashboardEliteFinal() {
                <h3 className="text-[11px] text-cyan-400 mb-8 uppercase font-black font-elite">02. CRÉDITO (R$ 10)</h3>
                <div className="bg-white p-4 rounded-3xl mb-8 shadow-inner flex items-center justify-center min-h-[128px]">
                  {!qrCode ? (
-                    <div className="text-slate-300 text-[10px] font-bold uppercase animate-pulse">Aguardando...</div>
+                    <div className="text-slate-300 text-[10px] font-bold uppercase animate-pulse">Aguardando Coordenadas...</div>
                  ) : <QRCodeSVG value={qrCode} size={128} />}
                </div>
-               <button onClick={handleGerarPix} disabled={loading || matriz.length === 0} className="w-full bg-slate-800 p-4 rounded-xl text-white font-black text-[10px] uppercase border border-white/5 shadow-lg transition-all hover:bg-slate-700">
+               <button onClick={handleConfirmarAposta} disabled={loading || matriz.length === 0} className="w-full bg-slate-800 p-4 rounded-xl text-white font-black text-[10px] uppercase border border-white/5 shadow-lg transition-all hover:bg-slate-700">
                   {loading ? "PROCESSANDO..." : "GERAR PIX"}
                </button>
             </div>
         </div>
 
-        {/* 3. SLOGAN */}
-        <section className="mb-20">
-           <h2 className="text-xl md:text-4xl font-black uppercase tracking-tighter mb-4 text-white">
-             A ÚNICA MATRIZ ONDE <span className="text-yellow-500 italic">ERRAR 24 VEZES</span> <br/>AINDA TE FAZ UM VENCEDOR.
-           </h2>
-        </section>
-
-        {/* 4. BASE: MALHA MATRIX (COM RÓTULOS 1º AO 5º) E COLUNA DIREITA */}
         <div className="grid lg:grid-cols-3 gap-8 items-start text-left mb-20">
           
           <div className="lg:col-span-2 bg-[#0d1117] border border-cyan-500/30 p-6 md:p-10 rounded-[3rem] shadow-2xl">
-             <h2 className="text-yellow-500 font-black text-[11px] uppercase mb-8 tracking-widest text-center italic font-elite">Sua Malha de Coordenadas Matrix 5x5</h2>
+             <h2 className="text-yellow-500 font-black text-[11px] uppercase mb-8 tracking-widest text-center italic font-elite">Sua Malha Matrix 5x5 (Alinhada ao Contrato)</h2>
              <div className="bg-black/90 border border-slate-800 rounded-[2rem] p-4 md:p-10 mb-8 shadow-inner">
                 <div className="flex flex-col gap-3">
                   {[0,1,2,3,4].map((i) => (
                     <div key={i} className="flex items-center gap-3">
-                      <span className="text-[8px] md:text-[10px] font-black text-cyan-500/40 text-right w-20 uppercase italic">{i+1} PREMIO:</span>
+                      <span className="text-[8px] md:text-[10px] font-black text-cyan-500/40 text-right w-20 uppercase italic">{i+1}º PREMIO:</span>
                       <div className="flex-1 grid grid-cols-5 gap-1.5 md:gap-4">
                         {[0,1,2,3,4].map((j) => (
                           <div key={j} className="aspect-square bg-slate-900 border border-cyan-500/30 rounded-lg flex items-center justify-center text-[9px] md:text-sm font-black text-cyan-400">
@@ -223,66 +188,45 @@ export default function DashboardEliteFinal() {
              </div>
              <div className="flex gap-4 max-w-md mx-auto">
                 <button onClick={gerarMalha} className="flex-1 bg-slate-800 p-4 rounded-2xl font-black text-[10px] uppercase border border-white/5 font-elite transition-all hover:bg-slate-700">Trocar Coordenadas</button>
-                <button onClick={handleConfirmar} disabled={loading || matriz.length === 0} className="flex-1 bg-[#ea580c] p-4 rounded-2xl font-black text-[10px] uppercase shadow-lg font-elite transition-all hover:bg-orange-500 flex justify-center items-center gap-2">
+                <button onClick={handleConfirmarAposta} disabled={loading || matriz.length === 0} className="flex-1 bg-[#ea580c] p-4 rounded-2xl font-black text-[10px] uppercase shadow-lg font-elite transition-all hover:bg-orange-500 flex justify-center items-center gap-2">
                    {loading ? <Loader2 className="animate-spin" size={14}/> : "Confirmar Certificado"}
                 </button>
              </div>
-             <p className="text-[10px] text-white/30 text-center mt-6 uppercase font-bold italic tracking-widest italic animate-pulse">IDENTIFICADO: {user.nome}</p>
           </div>
 
           <div className="space-y-6">
-            <div className="bg-[#0f172a] border border-amber-500/30 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-               <div className="absolute top-0 right-0 bg-amber-500 text-black font-black text-[8px] px-3 py-1 rounded-bl-xl uppercase italic">SÓCIO AFILIADO</div>
-               <h3 className="text-[10px] text-amber-500 mb-6 font-black uppercase tracking-widest italic font-elite">💰 Meu Lucro</h3>
-               <p className="text-[8px] text-slate-500 uppercase font-bold mb-1">Saldo Disponível</p>
-               <p style={{fontFamily:'Orbitron'}} className="text-3xl text-white font-black italic tracking-tighter font-elite">R$ 0,00</p>
-               <button onClick={()=>alert("Transferência solicitada via Pix")} className="w-full bg-[#ea580c] hover:bg-orange-500 text-white p-4 rounded-xl text-[10px] font-black uppercase mt-6 shadow-lg transition-all font-elite">SACAR VIA PIX</button>
-            </div>
-
-            <div className="bg-[#0f172a] border border-emerald-500/30 p-8 rounded-[2.5rem] shadow-2xl text-center">
-               <h3 className="text-[10px] text-emerald-400 mb-4 uppercase tracking-widest font-black font-elite flex items-center justify-center gap-2">🏆 Ranking Semanal</h3>
-               <p className="text-slate-500 italic text-[11px] uppercase tracking-tighter">Sincronizando competidores...</p>
-            </div>
-
             <div className="bg-[#0d1117] border border-white/10 p-8 rounded-[2.5rem] shadow-2xl">
-               <h3 className="text-yellow-500 mb-6 uppercase font-bold text-[9px] tracking-widest italic font-elite text-center italic text-white shadow-yellow-500/50">⚖️ Transparência Legal</h3>
+               <h3 className="text-yellow-500 mb-6 uppercase font-bold text-[9px] tracking-widest italic font-elite text-center">⚖️ Transparência Legal (Contrato)</h3>
                <div className="space-y-4 text-[9px] font-bold text-slate-400 uppercase font-mono">
-                  <div className="flex justify-between border-b border-white/5 pb-2"><span>Prêmio (43,35%)</span><span className="text-white">R$ 0,00</span></div>
-                  <div className="flex justify-between border-b border-white/5 pb-2"><span>Social (17,32%)</span><span className="text-white">R$ 0,00</span></div>
-                  <div className="flex justify-between border-b border-white/5 pb-2"><span>Segurança (9,26%)</span><span className="text-white">R$ 0,00</span></div>
-                  <div className="flex justify-between"><span>Educação (9,26%)</span><span className="text-white">R$ 0,00</span></div>
+                  <div className="flex justify-between border-b border-white/5 pb-2"><span>Prêmio Pool (43,35%)</span><span className="text-white">Sinc</span></div>
+                  <div className="flex justify-between border-b border-white/5 pb-2"><span>Seguridade (17,32%)</span><span className="text-white">Sinc</span></div>
+                  <div className="flex justify-between border-b border-white/5 pb-2"><span>FNSP (9,26%)</span><span className="text-white">Sinc</span></div>
+                  <div className="flex justify-between border-b border-white/5 pb-2"><span>FNDE (9,26%)</span><span className="text-white">Sinc</span></div>
+                  <div className="flex justify-between"><span>Operador (9,57%)</span><span className="text-white">Sinc</span></div>
                </div>
+            </div>
+            
+            <div className="bg-[#0f172a] border border-amber-500/30 p-8 rounded-[2.5rem] shadow-2xl">
+               <h3 className="text-[10px] text-amber-500 mb-2 font-black uppercase italic font-elite">💰 Meu Lucro Sócio</h3>
+               <p style={{fontFamily:'Orbitron'}} className="text-3xl text-white font-black italic tracking-tighter">R$ 0,00</p>
+               <button className="w-full bg-[#ea580c] text-white p-4 rounded-xl text-[10px] font-black uppercase mt-6 shadow-lg">SACAR VIA PIX</button>
             </div>
           </div>
         </div>
 
-        {/* CONTATO */}
-        <div className="bg-[#0d1117]/80 border border-cyan-500/20 p-10 md:p-14 rounded-[4rem] mb-12 max-w-4xl mx-auto shadow-2xl backdrop-blur-md">
-           <h3 style={{fontFamily:'Orbitron'}} className="text-2xl text-cyan-400 mb-10 tracking-[0.3em] uppercase italic text-center">Entre em Contato</h3>
-           <div className="grid md:grid-cols-2 gap-10 text-center">
-              <div><p className="text-[11px] text-slate-500 uppercase font-black mb-2 text-center font-elite tracking-widest">E-mail Suporte</p><p className="text-sm font-bold text-center text-white italic tracking-tighter">suporte@blockchain-betbrasil.io</p></div>
-              <div><p className="text-[11px] text-slate-500 uppercase font-black mb-2 text-center font-elite tracking-widest">WhatsApp Oficial</p><p className="text-sm font-bold text-center text-white italic tracking-tighter">+55 (21) 99352-7957</p></div>
-           </div>
-        </div>
-
-        <footer className="py-20 border-t border-white/5 opacity-30 text-center relative z-[200]">
-           <p onClick={()=>{setClickCount(c=>c+1); if(clickCount>=4) router.push('/admin/central')}} className="text-[10px] font-black uppercase tracking-[0.5em] italic cursor-pointer select-none antialiased">
-              © 2026 BET-GRUPO25 | PROTOCOLOS MATRIX PRO | BY NEON DATABASE
+        <footer className="py-20 border-t border-white/5 opacity-30 text-center">
+           <p onClick={()=>{setClickCount(c=>c+1); if(clickCount>=4) router.push('/admin/central')}} className="text-[10px] font-black uppercase tracking-[0.5em] italic cursor-pointer select-none">
+              © 2026 BET-GRUPO25 | CONTRATO VRF V2 PLUS | BY NEON DATABASE
            </p>
         </footer>
       </main>
 
-      <div onClick={()=>router.push('/como-funciona')} className="fixed bottom-6 right-6 w-14 h-14 bg-cyan-600 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.5)] cursor-pointer hover:scale-110 transition-all z-[300] text-white animate-bounce">
-         <HelpCircle size={28} />
-      </div>
-
-      <style jsx global>{\`
+      <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
         .font-elite { font-family: 'Orbitron', sans-serif; }
         @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
         .animate-marquee { animation: marquee 35s linear infinite; }
-        .shadow-inner { box-shadow: inset 0 2px 15px rgba(0,0,0,0.5); }
-      \`}</style>
+      `}</style>
     </div>
   );
 }
