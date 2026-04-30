@@ -72,9 +72,9 @@ export default function DashboardEliteTotal() {
     setQrCode(""); 
   };
 
-  const handleGerarPix = async () => {
+ const handleGerarPix = async () => {
     if (matriz.length === 0) return alert("Gere as coordenadas primeiro!");
-    if (!pixKeyResgate) return alert("Insira sua Chave Pix de Resgate primeiro!");
+    if (!pixKeyResgate) return alert("Por favor, insira sua Chave Pix de Resgate!");
     
     setLoading(true);
     try {
@@ -82,21 +82,25 @@ export default function DashboardEliteTotal() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-            email: user.email, 
-            cpf: pixKeyResgate, // Enviando a chave preenchida
-            prognosticos: matriz.flat(), 
-            rodadaId: 1 
+          email: user.email, 
+          pixKeyResgate: pixKeyResgate, // Enviando a chave digitada no campo
+          prognosticos: matriz.flat(), 
+          rodadaId: 1 
         })
       });
+      
       const data = await res.json();
+      
       if(data.qrCode) {
-          setQrCode(data.qrCode);
-          alert("Pix gerado com sucesso! Pague para validar.");
+        setQrCode(data.qrCode);
+      } else {
+        alert("Erro: " + (data.error || "Verifique o token da Vercel"));
       }
-      else alert("Erro ao gerar Pix. Verifique a API.");
-    } catch (e) { alert("Erro de rede ao conectar com o sistema de pagamentos"); }
+    } catch (e) {
+      alert("Falha na conexão com o servidor.");
+    }
     setLoading(false);
-  };
+};
 
   const handleConfirmar = () => {
     if (matriz.length === 0) return alert("Gere as coordenadas primeiro!");

@@ -5,78 +5,54 @@ import { prisma } from '@/lib/prisma';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    
-    // 1. Limpeza e Identificação
     const emailLimpo = body.email.trim().toLowerCase();
-    const cpfLimpo = body.cpf ? body.cpf.replace(/[^0-9]/g, '') : '00000000000';
     
-    // Captura a chave de resgate que vem do novo input do Dashboard
-    // Se não vier no body, tenta pegar a do cadastro do usuário
-    const chaveParaResgate = body.pixKeyResgate || body.cpf || "N/A";
-
-    // 2. Configuração do Mercado Pago
+    // Configuração Mercado Pago
     const token = (process.env.MP_ACCESS_TOKEN || '').trim();
     const client = new MercadoPagoConfig({ accessToken: token });
     const payment = new Payment(client);
 
-    // 3. Buscar usuário para garantir o vínculo
-    const user = await prisma.user.findUnique({ where: { email: emailLimpo } });
-    if (!user) {
-       return NextResponse.json({ error: "Sessão expirada. Faça login novamente." }, { status: 401 });
-    }
-
-    // 4. Gerar um ID amigável para o Bilhete antes de tudo
+    // 1. Gerar ID do Bilhete
     const bilheteId = `G25-${Math.random().toString(36).substr(2, 7).toUpperCase()}`;
 
-    // 5. Chamada ao Mercado Pago (Agora enviando o ID que geramos)
+    // 2. Chamada ao Mercado Pago
     const mpRes = await payment.create({
       body: {
         transaction_amount: 10.00,
-        description: "Aposta Bet-Grupo25 Matrix",
+        description: "Aposta Bet-Grupo25",
         payment_method_id: 'pix',
-        external_reference: bilheteId, // Conecta com o Webhook
-        notification_url: process.env.NEXT_PUBLIC_URL + '/api/webhook', // Ajustado para sua rota de webhook
-        payer: {
-          email: emailLimpo,
-          identification: { 
-            type: 'CPF', 
-            number: cpfLimpo.length === 11 ? cpfLimpo : '00000000000' 
-          }
-        }
+        external_reference: bilheteId,
+        notification_url: (process.env.NEXT_PUBLIC_URL || '') + '/api/pix/webhook',
+        payer: { email: emailLimpo }
       }
     });
 
     const qrCodeGerado = mpRes.point_of_interaction?.transaction_data?.qr_code;
 
-    if (!qrCodeGerado) {
-       throw new Error("Mercado Pago não retornou o QR Code.");
-    }
+    if (!qrCodeGerado) throw new Error("Erro ao gerar QR Code no MP");
 
-    // 6. Criar o Ticket no Neon já com o QR Code e a Chave de Resgate
-    const ticket = await prisma.ticket.create({
+    // 3. Salvar no Neon (Usando os nomes exatos das suas colunas)
+    // Nota: Usamos (prisma.ticket as any) caso o seu Prisma local ainda não tenha sido atualizado
+    const ticket = await (prisma.ticket as any).create({
       data: {
         id: bilheteId,
         rodadaId: 1,
-        userId: user.id,
         usuarioEmail: emailLimpo,
         prognosticos: JSON.stringify(body.prognosticos || []),
-        pago: false,
-        // CAMPOS NOVOS QUE ADICIONAMOS NO SQL:
-        pix_key_resgate: chaveParaResgate,
-        qr_code_payload: qrCodeGerado,
-        status_pagamento: 'pendente'
+        pix_key_resgate: body.pixKeyResgate || "N/A", // Salva a chave digitada
+        qr_code_payload: qrCodeGerado,               // Salva o código do Pix
+        status_pagamento: 'pendente',
+        pago: false
       }
     });
 
-    // 7. Retorna o QR Code para o Frontend exibir
     return NextResponse.json({ 
       qrCode: qrCodeGerado, 
       ticketId: ticket.id 
     });
 
   } catch (e: any) {
-    console.error("FALHA CRÍTICA PIX:", e);
-    const errorMsg = e.api_response?.body?.message || e.message || "Erro desconhecido";
-    return NextResponse.json({ error: errorMsg }, { status: 500 });
+    console.error("ERRO API PIX:", e);
+    return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }
