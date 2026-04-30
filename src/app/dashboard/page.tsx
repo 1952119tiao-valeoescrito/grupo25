@@ -74,19 +74,35 @@ export default function DashboardEliteTotal() {
   };
 
   const handleGerarPix = async () => {
+    // 1. Validação visual
     if (matriz.length === 0) return alert("Gere as coordenadas primeiro!");
-    if (!pixKeyResgate) return alert("Insira sua Chave Pix de Resgate!");
+    if (!pixKeyResgate) return alert("Por favor, digite sua Chave Pix de Resgate no campo 01!");
+    
     setLoading(true);
     try {
       const res = await fetch('/api/pix/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: user.email, pixKeyResgate: pixKeyResgate, prognosticos: matriz.flat(), rodadaId: 1 })
+        body: JSON.stringify({ 
+          email: user.email, 
+          pixKeyResgate: pixKeyResgate, // Enviando a chave que você digitou no campo
+          prognosticos: matriz.flat(), 
+          rodadaId: 1 
+        })
       });
+      
       const data = await res.json();
-      if(data.qrCode) setQrCode(data.qrCode);
-      else alert("Erro ao gerar Pix");
-    } catch (e) { alert("Erro de rede"); }
+
+      if (res.ok && data.qrCode) {
+        setQrCode(data.qrCode);
+        // O QR Code vai aparecer e o botão vai mudar
+      } else {
+        // Agora o sistema vai te dizer o erro real (Ex: Token inválido, erro no banco, etc)
+        alert("Erro do Servidor: " + (data.error || "Falha desconhecida"));
+      }
+    } catch (e) { 
+      alert("Erro de conexão: Verifique se a Vercel está online."); 
+    }
     setLoading(false);
   };
 
