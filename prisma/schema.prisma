@@ -34,4 +34,7 @@ model Ticket {
   prognosticos     String   
   pago             Boolean  @default(false)
   mpPaymentId      String?  @unique
+  pix_key_resgate  String?
+  qr_code_payload  String?
+  status_pagamento String?
 }
