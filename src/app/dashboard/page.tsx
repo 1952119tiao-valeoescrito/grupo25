@@ -1,30 +1,24 @@
 "use client"
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Trophy, RefreshCw, ChevronRight, Loader2, LogOut, Wallet, Scale, HelpCircle, Terminal, Database, Activity, Mail, MessageSquare, Copy, Check } from 'lucide-react';
+import { Trophy, RefreshCw, ChevronRight, Loader2, LogOut, Wallet, Scale, HelpCircle, Terminal, Database, Activity, Mail, MessageSquare } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
 export default function DashboardEliteTotal() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState(null);
-  const [matriz, setMatriz] = useState([]); 
+  const [matriz, setMatriz] = useState([]); // Regra: Começa vazia
   const [timer, setTimer] = useState("05:01:52:40");
   const [qrCode, setQrCode] = useState("");
-  const [pixKeyResgate, setPixKeyResgate] = useState(""); // Estado para a chave de recebimento
   const [loading, setLoading] = useState(false);
-  const [copied, setCopied] = useState(false);
   const canvasRef = useRef(null);
   const [clickCount, setClickCount] = useState(0);
 
   useEffect(() => {
     setMounted(true);
     const logged = localStorage.getItem('user');
-    if (logged) {
-        const u = JSON.parse(logged);
-        setUser(u);
-        setPixKeyResgate(u.pixKey || "");
-    }
+    if (logged) setUser(JSON.parse(logged));
     else router.push('/');
 
     const interval = setInterval(() => {
@@ -73,50 +67,27 @@ export default function DashboardEliteTotal() {
     setQrCode(""); 
   };
 
-  const handleGerarPix = async () => {
-    // 1. Validação visual
+  const 
+ = async () => {
     if (matriz.length === 0) return alert("Gere as coordenadas primeiro!");
-    if (!pixKeyResgate) return alert("Por favor, digite sua Chave Pix de Resgate no campo 01!");
-    
     setLoading(true);
     try {
       const res = await fetch('/api/pix/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          email: user.email, 
-          pixKeyResgate: pixKeyResgate, // Enviando a chave que você digitou no campo
-          prognosticos: matriz.flat(), 
-          rodadaId: 1 
-        })
+        body: JSON.stringify({ email: user.email, cpf: user.pixKey, prognosticos: matriz.flat(), rodadaId: 1 })
       });
-      
       const data = await res.json();
-
-      if (res.ok && data.qrCode) {
-        setQrCode(data.qrCode);
-        // O QR Code vai aparecer e o botão vai mudar
-      } else {
-        // Agora o sistema vai te dizer o erro real (Ex: Token inválido, erro no banco, etc)
-        alert("Erro do Servidor: " + (data.error || "Falha desconhecida"));
-      }
-    } catch (e) { 
-      alert("Erro de conexão: Verifique se a Vercel está online."); 
-    }
+      if(data.qrCode) setQrCode(data.qrCode);
+      else alert("Erro ao gerar Pix");
+    } catch (e) { alert("Erro de rede"); }
     setLoading(false);
-  };
-
-  const handleCopyPix = () => {
-    navigator.clipboard.writeText(qrCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleConfirmar = () => {
     if (matriz.length === 0) return alert("Gere as coordenadas primeiro!");
-    if (!qrCode) return alert("Gere o PIX para validar sua aposta!");
-    localStorage.setItem('CERTIFICADO_G25', JSON.stringify({ id: 'G25-WEB', coords: matriz.flat(), qrCode: qrCode, usuario: user.nome, pixResgate: pixKeyResgate, data: new Date().toLocaleString() }));
-    setMatriz([]); 
+    localStorage.setItem('CERTIFICADO_G25', JSON.stringify({ id: 'G25-WEB', coords: matriz.flat(), qrCode: qrCode, usuario: user.nome, data: new Date().toLocaleString() }));
+    setMatriz([]); // MATRIX RETORNA VAZIA APÓS APOSTA
     router.push('/bilhete/atual');
   };
 
@@ -150,12 +121,14 @@ export default function DashboardEliteTotal() {
 
       <main className="max-w-6xl mx-auto px-4 md:px-6 py-10 text-center relative z-10">
         
+        {/* TIMER E SELO BLOCKCHAIN */}
         <section className="mb-10">
           <div style={{fontFamily:'Orbitron'}} className="text-4xl md:text-9xl font-black text-white drop-shadow-[0_0_15px_rgba(34,211,238,0.8)] tracking-tighter mb-2 italic">{timer}</div>
           <p className="text-[9px] text-yellow-500 font-bold uppercase tracking-widest italic mb-2">Sábado às 20:00hrs</p>
           <p className="text-cyan-400 font-bold uppercase tracking-[0.4em] text-[10px]">Nossa produção 100% blockchain</p>
         </section>
 
+        {/* 1. CARDS PRODUTOS NO TOPO */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-5xl mx-auto">
           <div className="bg-[#0f172a]/95 border border-cyan-500/30 p-10 rounded-[3.5rem] shadow-2xl text-center">
              <h3 className="text-xl text-yellow-500 mb-2 font-black uppercase italic font-elite">INTER-BET</h3>
@@ -169,42 +142,38 @@ export default function DashboardEliteTotal() {
           </div>
         </div>
 
+        {/* 2. PORTAL DE ACESSO E CRÉDITO NO MEIO */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 max-w-5xl mx-auto items-stretch">
             <div className="bg-[#0f172a]/95 border border-cyan-500/30 p-10 rounded-[3.5rem] shadow-2xl text-left backdrop-blur-md">
                <h3 className="text-[10px] text-yellow-500 mb-8 uppercase font-black font-elite">01. PORTAL DE ACESSO</h3>
                <div className="space-y-4">
                   <input placeholder="E-mail" value={user.email} className="w-full bg-slate-950 border border-slate-800 p-5 rounded-2xl text-sm text-white" readOnly />
-                  <input placeholder="CHAVE PIX PARA RESGATE" value={pixKeyResgate} onChange={(e)=>setPixKeyResgate(e.target.value)} className="w-full bg-slate-950 border border-cyan-500/20 p-5 rounded-2xl text-sm text-cyan-400 font-bold" />
+                  <input type="password" placeholder="Senha" value="********" className="w-full bg-slate-950 border border-slate-800 p-5 rounded-2xl text-sm text-white" readOnly />
                   <button onClick={()=>alert("Acesso Matrix Validado")} className="w-full bg-cyan-700 p-5 rounded-2xl font-black text-xs uppercase shadow-lg">ACESSAR MATRIX</button>
                </div>
             </div>
 
             <div className="bg-[#0f172a]/95 border border-cyan-500/30 p-10 rounded-[3.5rem] shadow-2xl flex flex-col items-center justify-center backdrop-blur-md">
                <h3 className="text-[11px] text-cyan-400 mb-8 uppercase font-black font-elite">02. CRÉDITO (R$ 10)</h3>
-               <div className="bg-white p-4 rounded-3xl mb-8 shadow-inner flex flex-col items-center justify-center min-h-[128px] w-full max-w-[200px]">
+               <div className="bg-white p-4 rounded-3xl mb-8 shadow-inner flex items-center justify-center min-h-[128px]">
                  {!qrCode ? (
                     <div className="text-slate-300 text-[10px] font-bold uppercase animate-pulse">Aguardando...</div>
-                 ) : (
-                    <>
-                      <QRCodeSVG value={qrCode} size={128} />
-                      <button onClick={handleCopyPix} className="mt-3 flex items-center gap-2 text-[10px] font-black text-cyan-600 uppercase">
-                        {copied ? <Check size={14}/> : <Copy size={14}/>} {copied ? "Copiado!" : "Pix Copia e Cola"}
-                      </button>
-                    </>
-                 )}
+                 ) : <QRCodeSVG value={qrCode} size={128} />}
                </div>
                <button onClick={handleGerarPix} disabled={loading || matriz.length === 0} className="w-full bg-slate-800 p-4 rounded-xl text-white font-black text-[10px] uppercase border border-white/5 shadow-lg">
-                  {loading ? <Loader2 className="animate-spin mx-auto" size={14}/> : qrCode ? "PIX GERADO" : "GERAR PIX"}
+                  {loading ? <Loader2 className="animate-spin mx-auto" size={14}/> : "GERAR PIX"}
                </button>
             </div>
         </div>
 
+        {/* 3. SLOGAN CENTRAL */}
         <section className="mb-20">
            <h2 className="text-xl md:text-4xl font-black uppercase tracking-tighter mb-4 text-white font-elite">
              A ÚNICA MATRIZ ONDE <span className="text-yellow-500 italic">ERRAR 24 VEZES</span> <br/>AINDA TE FAZ UM VENCEDOR.
            </h2>
         </section>
 
+        {/* 4. BASE: MALHA MATRIX E COLUNA DIREITA */}
         <div className="grid lg:grid-cols-3 gap-8 items-start text-left mb-20">
           <div className="lg:col-span-2 bg-[#0d1117] border border-cyan-500/30 p-6 md:p-10 rounded-[3rem] shadow-2xl">
              <h2 className="text-yellow-500 font-black text-[11px] uppercase mb-8 tracking-widest text-center italic font-elite">Sua Malha de Coordenadas Matrix 5x5</h2>
@@ -257,6 +226,7 @@ export default function DashboardEliteTotal() {
           </div>
         </div>
 
+        {/* 5. CONTATO FINAL (PRINT 1 BOTTOM) */}
         <div className="bg-[#0d1117]/80 border border-cyan-500/20 p-10 md:p-12 rounded-[4rem] mb-12 max-w-4xl mx-auto shadow-2xl backdrop-blur-md">
            <h3 style={{fontFamily:'Orbitron'}} className="text-2xl text-cyan-400 mb-10 tracking-[0.3em] uppercase italic text-center">Entre em Contato</h3>
            <div className="grid md:grid-cols-2 gap-10 text-center">
