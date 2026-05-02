@@ -9,7 +9,7 @@ export default function DashboardEliteTotal() {
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState(null);
   const [matriz, setMatriz] = useState([]); 
-  const [timer, setTimer] = useState("00:00:00:00");
+  const [timer, setTimer] = useState("05:01:52:40");
   const [qrCode, setQrCode] = useState("");
   const [loading, setLoading] = useState(false);
   const canvasRef = useRef(null);
@@ -18,11 +18,8 @@ export default function DashboardEliteTotal() {
   useEffect(() => {
     setMounted(true);
     const logged = localStorage.getItem('user');
-    if (logged) {
-        setUser(JSON.parse(logged));
-    } else {
-        router.push('/');
-    }
+    if (logged) setUser(JSON.parse(logged));
+    else router.push('/');
 
     const interval = setInterval(() => {
       const now = new Date();
@@ -70,47 +67,31 @@ export default function DashboardEliteTotal() {
     setQrCode(""); 
   };
 
-  // CORRIGIDO: Nome da função agora bate com o botão e sem erros de sintaxe
+  // NOME DA FUNÇÃO CORRIGIDO PARA BATER COM O BOTÃO ABAIXO
   const handleGerarPix = async () => {
     if (matriz.length === 0) return alert("Gere as coordenadas primeiro!");
-    if (!user) return alert("Sessão expirada. Faça login novamente.");
-    
     setLoading(true);
     try {
       const res = await fetch('/api/pix/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            email: user?.email, 
-            cpf: user?.pixKey, 
-            prognosticos: matriz.flat(), 
-            rodadaId: 1 
-        })
+        body: JSON.stringify({ email: user?.email, cpf: user?.pixKey, prognosticos: matriz.flat(), rodadaId: 1 })
       });
       const data = await res.json();
       if(data.qrCode) setQrCode(data.qrCode);
-      else alert("Erro ao gerar Pix: " + (data.error || "Tente novamente"));
-    } catch (e) { 
-      alert("Erro de rede ao conectar com o servidor"); 
-    }
+      else alert("Erro ao gerar Pix");
+    } catch (e) { alert("Erro de rede"); }
     setLoading(false);
   };
 
   const handleConfirmar = () => {
     if (matriz.length === 0) return alert("Gere as coordenadas primeiro!");
-    localStorage.setItem('CERTIFICADO_G25', JSON.stringify({ 
-        id: 'G25-WEB', 
-        coords: matriz.flat(), 
-        qrCode: qrCode, 
-        usuario: user?.nome, 
-        data: new Date().toLocaleString() 
-    }));
+    localStorage.setItem('CERTIFICADO_G25', JSON.stringify({ id: 'G25-WEB', coords: matriz.flat(), qrCode: qrCode, usuario: user?.nome, data: new Date().toLocaleString() }));
     setMatriz([]); 
     router.push('/bilhete/atual');
   };
 
-  // Proteção de carregamento
-  if (!mounted || !user) return <div className="min-h-screen bg-[#010409] flex items-center justify-center"><Loader2 className="animate-spin text-cyan-500" /></div>;
+  if (!mounted || !user) return <div className="min-h-screen bg-[#010409]" />;
 
   return (
     <div className="min-h-screen bg-[#010409] text-white font-sans overflow-x-hidden relative selection:bg-cyan-500/30">
@@ -133,21 +114,21 @@ export default function DashboardEliteTotal() {
           </nav>
           <div className="flex items-center gap-4">
              <span className="text-[9px] font-black text-yellow-500 border border-yellow-500/20 px-3 py-1 rounded-full uppercase italic tracking-tighter">Acesso Restrito</span>
-             <p className="text-[10px] font-bold text-yellow-500 uppercase border border-yellow-500/20 px-4 py-1.5 rounded-full bg-yellow-500/10">
-                Olá, {user?.nome?.split(' ')[0] || 'Usuário'}
-             </p>
+             <p className="text-[10px] font-bold text-yellow-500 uppercase border border-yellow-500/20 px-4 py-1.5 rounded-full bg-yellow-500/10">Olá, {user?.nome?.split(' ')[0] || 'Usuário'}</p>
           </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 md:px-6 py-10 text-center relative z-10">
         
+        {/* TIMER E SELO BLOCKCHAIN */}
         <section className="mb-10">
           <div style={{fontFamily:'Orbitron'}} className="text-4xl md:text-9xl font-black text-white drop-shadow-[0_0_15px_rgba(34,211,238,0.8)] tracking-tighter mb-2 italic">{timer}</div>
           <p className="text-[9px] text-yellow-500 font-bold uppercase tracking-widest italic mb-2">Sábado às 20:00hrs</p>
           <p className="text-cyan-400 font-bold uppercase tracking-[0.4em] text-[10px]">Nossa produção 100% blockchain</p>
         </section>
 
+        {/* 1. CARDS PRODUTOS NO TOPO */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-5xl mx-auto">
           <div className="bg-[#0f172a]/95 border border-cyan-500/30 p-10 rounded-[3.5rem] shadow-2xl text-center">
              <h3 className="text-xl text-yellow-500 mb-2 font-black uppercase italic font-elite">INTER-BET</h3>
@@ -161,6 +142,7 @@ export default function DashboardEliteTotal() {
           </div>
         </div>
 
+        {/* 2. PORTAL DE ACESSO E CRÉDITO NO MEIO */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 max-w-5xl mx-auto items-stretch">
             <div className="bg-[#0f172a]/95 border border-cyan-500/30 p-10 rounded-[3.5rem] shadow-2xl text-left backdrop-blur-md">
                <h3 className="text-[10px] text-yellow-500 mb-8 uppercase font-black font-elite">01. PORTAL DE ACESSO</h3>
@@ -184,12 +166,14 @@ export default function DashboardEliteTotal() {
             </div>
         </div>
 
+        {/* 3. SLOGAN CENTRAL */}
         <section className="mb-20">
            <h2 className="text-xl md:text-4xl font-black uppercase tracking-tighter mb-4 text-white font-elite">
              A ÚNICA MATRIZ ONDE <span className="text-yellow-500 italic">ERRAR 24 VEZES</span> <br/>AINDA TE FAZ UM VENCEDOR.
            </h2>
         </section>
 
+        {/* 4. BASE: MALHA MATRIX E COLUNA DIREITA */}
         <div className="grid lg:grid-cols-3 gap-8 items-start text-left mb-20">
           <div className="lg:col-span-2 bg-[#0d1117] border border-cyan-500/30 p-6 md:p-10 rounded-[3rem] shadow-2xl">
              <h2 className="text-yellow-500 font-black text-[11px] uppercase mb-8 tracking-widest text-center italic font-elite">Sua Malha de Coordenadas Matrix 5x5</h2>
@@ -242,6 +226,7 @@ export default function DashboardEliteTotal() {
           </div>
         </div>
 
+        {/* 5. CONTATO FINAL */}
         <div className="bg-[#0d1117]/80 border border-cyan-500/20 p-10 md:p-12 rounded-[4rem] mb-12 max-w-4xl mx-auto shadow-2xl backdrop-blur-md">
            <h3 style={{fontFamily:'Orbitron'}} className="text-2xl text-cyan-400 mb-10 tracking-[0.3em] uppercase italic text-center">Entre em Contato</h3>
            <div className="grid md:grid-cols-2 gap-10 text-center">
