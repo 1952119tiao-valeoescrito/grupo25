@@ -75,12 +75,25 @@ export default function DashboardEliteTotal() {
       const res = await fetch('/api/pix/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: user?.email, cpf: user?.pixKey, prognosticos: matriz.flat(), rodadaId: 1 })
+        body: JSON.stringify({ 
+          email: user?.email, 
+          nome: user?.nome, // Enviando o nome para o Mercado Pago
+          pixKeyResgate: user?.pixKey, // Nome do campo batendo com a API
+          prognosticos: matriz.flat(), 
+          rodadaId: 1 
+        })
       });
+      
       const data = await res.json();
-      if(data.qrCode) setQrCode(data.qrCode);
-      else alert("Erro ao gerar Pix");
-    } catch (e) { alert("Erro de rede"); }
+      
+      if(data.qrCode) {
+        setQrCode(data.qrCode);
+      } else {
+        alert("Erro: " + (data.error || "Não foi possível gerar o Pix. Verifique seu CPF/Chave."));
+      }
+    } catch (e) { 
+      alert("Erro de conexão com o servidor"); 
+    }
     setLoading(false);
   };
 
