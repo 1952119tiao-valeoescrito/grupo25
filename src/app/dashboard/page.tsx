@@ -67,8 +67,7 @@ export default function DashboardEliteTotal() {
     setQrCode(""); 
   };
 
-  const handleEnviarMatriz 
- = async () => {
+  const handleGerarPix = async () => { ... }
     if (matriz.length === 0) return alert("Gere as coordenadas primeiro!");
     setLoading(true);
     try {
