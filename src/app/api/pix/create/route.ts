@@ -5,30 +5,37 @@ import { prisma } from '@/lib/prisma';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const emailLimpo = body.email?.trim().toLowerCase();
     
-    // LIMPEZA TOTAL DO CPF: Remove tudo que não for número
-    const cpfApenasNumeros = (body.pixKeyResgate || "").replace(/\D/g, '');
+    // 1. Validação básica de entrada
+    if (!body.email || !body.pixKeyResgate) {
+        return NextResponse.json({ error: "E-mail e CPF são obrigatórios." }, { status: 400 });
+    }
 
+    const emailLimpo = body.email.trim().toLowerCase();
+    const cpfApenasNumeros = body.pixKeyResgate.replace(/\D/g, '');
+
+    // 2. Configuração do Token (Verifique se isso está na Vercel!)
     const token = (process.env.MP_ACCESS_TOKEN || '').trim();
+    if (!token) throw new Error("Token MP_ACCESS_TOKEN não encontrado nas variáveis de ambiente.");
+
     const client = new MercadoPagoConfig({ accessToken: token });
     const payment = new Payment(client);
 
     const bilheteId = `G25-${Math.random().toString(36).substr(2, 7).toUpperCase()}`;
 
+    // 3. Chamada Simplificada (Removendo notification_url para testar)
     const mpRes = await payment.create({
       body: {
         transaction_amount: 10.00,
-        description: "Aposta Matrix Bet-Grupo25",
+        description: "Aposta Matrix G25",
         payment_method_id: 'pix',
         external_reference: bilheteId,
+        // Removemos a notification_url temporariamente para garantir o sucesso do Pix
         payer: {
           email: emailLimpo,
-          first_name: body.nome?.split(' ')[0] || "Usuario",
-          last_name: body.nome?.split(' ').slice(1).join(' ') || "G25",
           identification: {
             type: 'CPF',
-            number: cpfApenasNumeros // AGORA VAI SÓ NÚMEROS
+            number: cpfApenasNumeros
           }
         }
       }
@@ -36,8 +43,12 @@ export async function POST(req: Request) {
 
     const qrCodeReal = mpRes.point_of_interaction?.transaction_data?.qr_code;
 
-    if (!qrCodeReal) throw new Error("Mercado Pago falhou ao gerar o código PIX.");
+    if (!qrCodeReal) {
+        console.error("MP Response Error:", mpRes);
+        throw new Error("Mercado Pago não retornou o código PIX.");
+    }
 
+    // 4. Salva no banco
     await prisma.ticket.create({
       data: {
         id: bilheteId,
@@ -54,10 +65,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ qrCode: qrCodeReal, ticketId: bilheteId });
 
   } catch (e: any) {
-    console.error("ERRO MP:", e.api_response?.body || e.message);
-    const msg = e.api_response?.body?.message === "payer.identification.number is invalid" 
-      ? "CPF INVÁLIDO! Verifique os dados do usuário." 
-      : "Erro no Mercado Pago";
-    return NextResponse.json({ error: msg }, { status: 500 });
+    // Log detalhado para você ver no painel da Vercel
+    console.error("ERRO COMPLETO MP:", JSON.stringify(e.api_response?.body || e.message));
+    
+    return NextResponse.json({ 
+        error: e.api_response?.body?.message || "Erro de comunicação com o Mercado Pago" 
+    }, { status: 500 });
   }
 }
