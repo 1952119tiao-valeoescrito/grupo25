@@ -5,80 +5,59 @@ import { prisma } from '@/lib/prisma';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    
-    // Pegando os dados que vem do frontend
     const emailLimpo = body.email?.trim().toLowerCase();
-    const pixKeyResgate = body.pixKeyResgate || body.cpf || "N/A"; // Aceita os dois nomes por segurança
-    const nomeUsuario = body.nome || "Usuario G25";
-
-    // 1. Configuração do Mercado Pago
-    const token = (process.env.MP_ACCESS_TOKEN || '').trim();
-    if (!token) throw new Error("Token do Mercado Pago não configurado nas variáveis de ambiente.");
     
+    // LIMPEZA TOTAL DO CPF: Remove tudo que não for número
+    const cpfApenasNumeros = (body.pixKeyResgate || "").replace(/\D/g, '');
+
+    const token = (process.env.MP_ACCESS_TOKEN || '').trim();
     const client = new MercadoPagoConfig({ accessToken: token });
     const payment = new Payment(client);
 
-    // 2. Gerar ID Único para o Bilhete
     const bilheteId = `G25-${Math.random().toString(36).substr(2, 7).toUpperCase()}`;
 
-    // 3. Chamada ao Mercado Pago (COM PAYER COMPLETO)
     const mpRes = await payment.create({
       body: {
         transaction_amount: 10.00,
         description: "Aposta Matrix Bet-Grupo25",
         payment_method_id: 'pix',
         external_reference: bilheteId,
-        // Se a URL não existir, não enviamos a notification_url para não dar erro
-        ...(process.env.NEXT_PUBLIC_URL && {
-           notification_url: `${process.env.NEXT_PUBLIC_URL}/api/webhook`
-        }),
         payer: {
           email: emailLimpo,
-          first_name: nomeUsuario.split(' ')[0],
-          last_name: nomeUsuario.split(' ').slice(1).join(' ') || 'Silva',
+          first_name: body.nome?.split(' ')[0] || "Usuario",
+          last_name: body.nome?.split(' ').slice(1).join(' ') || "G25",
           identification: {
             type: 'CPF',
-            number: pixKeyResgate.replace(/\D/g, '') // Remove pontos e traços do CPF
+            number: cpfApenasNumeros // AGORA VAI SÓ NÚMEROS
           }
         }
       }
     });
 
-    // 4. Captura o código "Copia e Cola"
     const qrCodeReal = mpRes.point_of_interaction?.transaction_data?.qr_code;
 
-    if (!qrCodeReal) {
-       console.error("Resposta Completa MP:", JSON.stringify(mpRes));
-       throw new Error("Mercado Pago não devolveu o código PIX.");
-    }
+    if (!qrCodeReal) throw new Error("Mercado Pago falhou ao gerar o código PIX.");
 
-    // 5. Salva no banco de dados Neon
-    const ticket = await prisma.ticket.create({
+    await prisma.ticket.create({
       data: {
         id: bilheteId,
         rodadaId: 1,
         usuarioEmail: emailLimpo,
         prognosticos: JSON.stringify(body.prognosticos || []),
-        pix_key_resgate: pixKeyResgate,
+        pix_key_resgate: body.pixKeyResgate,
         qr_code_payload: qrCodeReal,
         status_pagamento: 'pendente',
         pago: false
       }
     });
 
-    return NextResponse.json({ 
-      qrCode: qrCodeReal, 
-      ticketId: ticket.id 
-    });
+    return NextResponse.json({ qrCode: qrCodeReal, ticketId: bilheteId });
 
   } catch (e: any) {
-    console.error("ERRO DETALHADO NO PIX:", e);
-    
-    // Pega a mensagem de erro real do Mercado Pago se existir
-    const msgErro = e.api_response?.body?.message || e.message || "Erro desconhecido";
-    
-    return NextResponse.json({ 
-        error: msgErro 
-    }, { status: 500 });
+    console.error("ERRO MP:", e.api_response?.body || e.message);
+    const msg = e.api_response?.body?.message === "payer.identification.number is invalid" 
+      ? "CPF INVÁLIDO! Verifique os dados do usuário." 
+      : "Erro no Mercado Pago";
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

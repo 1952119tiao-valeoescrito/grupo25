@@ -77,30 +77,34 @@ export default function DashboardEliteTotal() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           email: user?.email, 
-          nome: user?.nome, // Enviando o nome para o Mercado Pago
-          pixKeyResgate: user?.pixKey, // Nome do campo batendo com a API
+          nome: user?.nome,
+          pixKeyResgate: user?.pixKey, // Supondo que pixKey seja o CPF
           prognosticos: matriz.flat(), 
           rodadaId: 1 
         })
       });
-      
       const data = await res.json();
-      
       if(data.qrCode) {
         setQrCode(data.qrCode);
       } else {
-        alert("Erro: " + (data.error || "Não foi possível gerar o Pix. Verifique seu CPF/Chave."));
+        alert("Erro: " + data.error); // Vai avisar se o CPF estiver ruim
       }
-    } catch (e) { 
-      alert("Erro de conexão com o servidor"); 
-    }
+    } catch (e) { alert("Erro de rede"); }
     setLoading(false);
   };
 
   const handleConfirmar = () => {
     if (matriz.length === 0) return alert("Gere as coordenadas primeiro!");
-    localStorage.setItem('CERTIFICADO_G25', JSON.stringify({ id: 'G25-WEB', coords: matriz.flat(), qrCode: qrCode, usuario: user?.nome, data: new Date().toLocaleString() }));
-    setMatriz([]); 
+    if (!qrCode) return alert("Você precisa GERAR PIX e aguardar o QR Code primeiro!");
+
+    localStorage.setItem('CERTIFICADO_G25', JSON.stringify({ 
+      id: 'G25-WEB', 
+      coords: matriz.flat(), 
+      qrCode: qrCode, 
+      usuario: user?.nome, 
+      pixKey: user?.pixKey, // Salvando com o nome exato que o bilhete procura
+      data: new Date().toLocaleString() 
+    }));
     router.push('/bilhete/atual');
   };
 

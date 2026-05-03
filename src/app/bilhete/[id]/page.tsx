@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Trophy, Printer, ChevronLeft, Copy, CheckCircle2 } from 'lucide-react';
+import { Trophy, Printer, ChevronLeft, Copy, CheckCircle2, AlertCircle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
 export default function CertificadoG25() {
@@ -23,6 +23,9 @@ export default function CertificadoG25() {
   };
 
   if (!data) return null;
+
+  // Verifica se o QR Code recebido é um payload PIX válido (padrão BC começa com 000201)
+  const isPixValido = data.qrCode && data.qrCode.startsWith('000201');
 
   return (
     <div className="min-h-screen bg-[#030712] flex flex-col items-center justify-center p-4 md:p-10 text-slate-200 font-sans print:bg-white print:p-0">
@@ -56,7 +59,7 @@ export default function CertificadoG25() {
                 </div>
                 
                 <div>
-                  <p className="text-[9px] text-yellow-500 font-black uppercase mb-1">Chave Pix Resgate (Destino do Prêmio)</p>
+                  <p className="text-[9px] text-yellow-500 font-black uppercase mb-1 border-l-2 border-yellow-500 pl-2">Chave Pix Resgate (Destino do Prêmio)</p>
                   <p className="font-bold text-white print:text-black italic text-sm">
                     {data.pixKey || data.chavePix || data.chaveResgate || "Não informada"}
                   </p>
@@ -83,40 +86,52 @@ export default function CertificadoG25() {
 
             {/* ÁREA DO PAGAMENTO */}
             <div className="flex flex-col items-center">
-              <div className="bg-white p-6 rounded-[3rem] flex flex-col items-center justify-center shadow-2xl no-print border-8 border-cyan-500/10">
-                  <p className="text-black font-black uppercase text-[10px] mb-4 tracking-tighter">Aponte a câmera para pagar</p>
+              <div className="bg-white p-6 rounded-[3.5rem] flex flex-col items-center justify-center shadow-2xl no-print border-8 border-cyan-500/10 w-full max-w-[320px]">
                   
-                  {/* QR CODE CONFIGURADO PARA LEITURA RÁPIDA */}
-                  <QRCodeSVG 
-                    value={data.qrCode || ""} 
-                    size={220} 
-                    includeMargin={true} 
-                    level="H" 
-                  />
-                  
-                  <p className="text-slate-400 text-[9px] mt-4 font-bold uppercase animate-pulse">Aguardando Pagamento</p>
+                  {isPixValido ? (
+                    <>
+                      <p className="text-black font-black uppercase text-[10px] mb-4 tracking-tighter">Aponte a câmera para pagar</p>
+                      <QRCodeSVG 
+                        value={data.qrCode} 
+                        size={200} 
+                        includeMargin={true} 
+                        level="H" 
+                      />
+                      <p className="text-slate-400 text-[9px] mt-4 font-bold uppercase animate-pulse">Aguardando Pagamento</p>
+                    </>
+                  ) : (
+                    <div className="py-10 px-4 text-center">
+                       <AlertCircle className="text-red-500 mx-auto mb-4" size={48} />
+                       <p className="text-black font-black uppercase text-xs">Erro no QR Code</p>
+                       <p className="text-slate-500 text-[9px] mt-2 font-bold uppercase leading-relaxed">
+                         O código gerado não é um Pix válido.<br/>Por favor, volte ao Dashboard e gere o Pix novamente verificando seu CPF.
+                       </p>
+                    </div>
+                  )}
               </div>
 
-              {/* BOTÃO COPIA E COLA PARA CELULAR */}
-              <div className="w-full mt-6 no-print">
-                <button 
-                  onClick={handleCopyPix}
-                  className={`w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-black uppercase text-xs transition-all shadow-lg ${copied ? 'bg-emerald-600' : 'bg-slate-800 hover:bg-slate-700'}`}
-                >
-                  {copied ? (
-                    <><CheckCircle2 size={16}/> Código Copiado!</>
-                  ) : (
-                    <><Copy size={16}/> Copiar Código Pix (Copia e Cola)</>
-                  )}
-                </button>
-                <p className="text-[8px] text-center text-slate-500 mt-2 uppercase font-bold">Use esta opção se estiver pagando pelo próprio celular</p>
-              </div>
+              {/* BOTÃO COPIA E COLA - Só aparece se o pix for válido */}
+              {isPixValido && (
+                <div className="w-full mt-6 no-print max-w-[320px]">
+                  <button 
+                    onClick={handleCopyPix}
+                    className={`w-full flex items-center justify-center gap-2 py-4 rounded-2xl font-black uppercase text-xs transition-all shadow-lg ${copied ? 'bg-emerald-600' : 'bg-slate-800 hover:bg-slate-700'}`}
+                  >
+                    {copied ? (
+                      <><CheckCircle2 size={16}/> Código Copiado!</>
+                    ) : (
+                      <><Copy size={16}/> Copiar Código Pix (Copia e Cola)</>
+                    )}
+                  </button>
+                  <p className="text-[8px] text-center text-slate-500 mt-2 uppercase font-bold">Use esta opção se estiver no celular</p>
+                </div>
+              )}
             </div>
         </section>
 
-        <footer className="flex justify-between items-center pt-8 border-t border-cyan-900/30 no-print">
+        <footer className="flex justify-between items-center pt-8 border-t border-cyan-900/30 no-print relative z-10">
            <button onClick={() => router.push('/dashboard')} className="text-slate-500 hover:text-white text-[10px] font-bold uppercase underline flex items-center gap-1">
-             <ChevronLeft size={14}/> Voltar
+             <ChevronLeft size={14}/> Voltar ao Dashboard
            </button>
            <button onClick={() => window.print()} className="bg-cyan-600 hover:bg-cyan-500 text-white px-8 py-3 rounded-xl font-black uppercase text-xs transition-all flex items-center gap-2 shadow-lg">
              <Printer size={16}/> Imprimir Bilhete
