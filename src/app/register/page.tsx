@@ -7,6 +7,7 @@ export default function Register() {
   const router = useRouter();
   const [step, setStep] = useState('age'); // age, splash, form
   const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ nome: '', email: '', pix: '', senha: '' });
   const canvasRef = useRef(null);
 
@@ -15,6 +16,7 @@ export default function Register() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     const coords = [];
@@ -53,6 +55,39 @@ export default function Register() {
         return old + (100 / 30);
       });
     }, 1000);
+  };
+
+  // 3. FUNÇÃO DE CADASTRO REAL (A MÁGICA ACONTECE AQUI)
+  const handleRegister = async () => {
+    if(!form.email || !form.senha || !form.nome) return alert("Preencha todos os campos!");
+    
+    setLoading(true);
+    try {
+      // PADRÃO DE ELITE: Limpando o e-mail antes de enviar pro banco
+      const payload = {
+        ...form,
+        email: form.email.trim().toLowerCase(), // Salva limpo no banco!
+        pix: form.pix.replace(/\D/g, '') // Remove pontos/traços do CPF/Pix se for número
+      };
+
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Cadastro realizado com sucesso!");
+        router.push('/login'); // Joga pro login após cadastrar
+      } else {
+        alert(data.error || "Erro ao cadastrar");
+      }
+    } catch (e) {
+      alert("Erro de conexão com o servidor");
+    }
+    setLoading(false);
   };
 
   return (
@@ -99,16 +134,50 @@ export default function Register() {
            <p className="text-slate-500 text-[10px] text-center mb-8 uppercase font-bold tracking-widest">Acesso à Matriz 25x25 Elite</p>
            
            <div className="space-y-4">
-              <input placeholder="Nome Completo" className="w-full p-4 rounded-2xl bg-slate-950 border-slate-800 outline-none focus:border-yellow-500" />
-              <input placeholder="E-mail (Seu Login)" className="w-full p-4 rounded-2xl bg-slate-950 border-slate-800 outline-none focus:border-yellow-500" />
-              <input placeholder="Chave PIX (Para Prêmios)" className="w-full p-4 rounded-2xl bg-slate-950 border-slate-800 outline-none focus:border-yellow-500" />
-              <input type="password" placeholder="Sua Senha" className="w-full p-4 rounded-2xl bg-slate-950 border-slate-800 outline-none focus:border-yellow-500" />
+              <input 
+                placeholder="Nome Completo" 
+                value={form.nome}
+                onChange={(e) => setForm({...form, nome: e.target.value})}
+                className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-800 outline-none focus:border-yellow-500 text-white" 
+              />
+              <input 
+                placeholder="E-mail (Seu Login)" 
+                value={form.email}
+                onChange={(e) => setForm({...form, email: e.target.value})}
+                className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-800 outline-none focus:border-yellow-500 text-white" 
+              />
+              <input 
+                placeholder="Chave PIX / CPF" 
+                value={form.pix}
+                onChange={(e) => setForm({...form, pix: e.target.value})}
+                className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-800 outline-none focus:border-yellow-500 text-white" 
+              />
+              <input 
+                type="password" 
+                placeholder="Sua Senha" 
+                value={form.senha}
+                onChange={(e) => setForm({...form, senha: e.target.value})}
+                className="w-full p-4 rounded-2xl bg-slate-950 border border-slate-800 outline-none focus:border-yellow-500 text-white" 
+              />
               
-              <button onClick={() => router.push('/')} className="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-5 rounded-2xl font-black text-xs uppercase shadow-xl mt-6">CADASTRAR E JOGAR</button>
-              <p className="text-center text-[10px] text-slate-500 uppercase font-bold mt-4">Já é membro? <span className="text-yellow-500 underline cursor-pointer">Faça Login</span></p>
+              <button 
+                onClick={handleRegister} 
+                disabled={loading}
+                className="w-full bg-yellow-500 hover:bg-yellow-400 text-black py-5 rounded-2xl font-black text-xs uppercase shadow-xl mt-6 flex justify-center items-center"
+              >
+                {loading ? <Loader2 className="animate-spin" /> : "CADASTRAR E JOGAR"}
+              </button>
+              
+              <p className="text-center text-[10px] text-slate-500 uppercase font-bold mt-4">
+                Já é membro? <span onClick={() => router.push('/login')} className="text-yellow-500 underline cursor-pointer">Faça Login</span>
+              </p>
            </div>
         </div>
       </main>
+
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
+      `}</style>
     </div>
   );
 }
