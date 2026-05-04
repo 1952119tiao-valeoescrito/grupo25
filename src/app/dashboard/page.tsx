@@ -165,7 +165,8 @@ export default function DashboardEliteTotal() {
                <h3 className="text-[10px] text-yellow-500 mb-8 uppercase font-black font-elite">01. PORTAL DE ACESSO</h3>
                <div className="space-y-4">
                   <input placeholder="E-mail" value={user?.email || ''} className="w-full bg-slate-950 border border-slate-800 p-5 rounded-2xl text-sm text-white" readOnly />
-                  <input type="password" placeholder="Senha" value="********" className="w-full bg-slate-950 border border-slate-800 p-5 rounded-2xl text-sm text-white" readOnly />
+                  <input type="password" placeholder="Senha" value="********" className="w-full bg-slate-950 border border-slate-800 p-5 rounded-2xl text-sm text-white" onChange={(e) => setForm({...form, email: e.target.value})}
+ />
                   <button onClick={()=>alert("Acesso Matrix Validado")} className="w-full bg-cyan-700 p-5 rounded-2xl font-black text-xs uppercase shadow-lg">ACESSAR MATRIX</button>
                </div>
             </div>
