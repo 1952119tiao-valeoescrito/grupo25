@@ -5,7 +5,16 @@ import { prisma } from '@/lib/prisma';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const emailLimpo = body.email?.trim().toLowerCase();
+    
+    // TRAVA DE SEGURANÇA: Se o e-mail não vier, nem tenta falar com o banco
+    if (!body.email) {
+        return NextResponse.json({ 
+          error: "Sessão expirada. Por favor, saia do sistema e faça login novamente." 
+        }, { status: 401 });
+    }
+
+    const emailLimpo = body.email.trim().toLowerCase();
+    // ... resto do seu código
     const cpfLimpo = (body.pixKeyResgate || "").replace(/\D/g, '');
 
     // 1. BUSCA O ID DO USUÁRIO NO BANCO
@@ -69,9 +78,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ qrCode: qrCodeReal, ticketId: ticket.id });
 
   } catch (e: any) {
-    console.error("ERRO NO PROCESSO:", e);
-    return NextResponse.json({ 
-      error: "Erro ao gerar aposta: " + (e.message || "Erro interno") 
-    }, { status: 500 });
+    const mpError = e.api_response?.body;
+    console.error("ERRO MP DETALHADO:", JSON.stringify(mpError));
+    
+    let mensagem = "Erro ao processar com Mercado Pago";
+    
+    if (mpError?.message?.includes("identification.number")) {
+        // ESSA LINHA É A CHAVE: Ela vai te dizer qual CPF o banco tentou usar
+        mensagem = `CPF INVÁLIDO: O sistema tentou usar o CPF cadastrado, mas o Mercado Pago recusou. Verifique seus dados de perfil.`;
+    }
+
+    return NextResponse.json({ error: mensagem }, { status: 500 });
   }
-}
