@@ -59,13 +59,17 @@ export async function POST(req: Request) {
     }
 
     // 4. Salva no banco de dados Neon
-    await prisma.ticket.create({
+    const ticket = await prisma.ticket.create({
       data: {
         id: bilheteId,
         rodadaId: 1,
-        usuarioEmail: emailLimpo,
+        // REMOVEMOS: usuarioEmail: emailLimpo (se o prisma reclamar)
+        // ADICIONAMOS: A conexão oficial com o usuário
+        user: {
+          connect: { email: emailLimpo }
+        },
         prognosticos: JSON.stringify(body.prognosticos || []),
-        pix_key_resgate: body.pixKeyResgate, // Salva o original para conferência
+        pix_key_resgate: body.pixKeyResgate || "N/A",
         qr_code_payload: qrCodeReal,
         status_pagamento: 'pendente',
         pago: false
