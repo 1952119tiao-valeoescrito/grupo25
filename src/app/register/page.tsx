@@ -63,11 +63,10 @@ export default function Register() {
     
     setLoading(true);
     try {
-      // PADRÃO DE ELITE: Limpando o e-mail antes de enviar pro banco
       const payload = {
         ...form,
-        email: form.email.trim().toLowerCase(), // Salva limpo no banco!
-        pix: form.pix.replace(/\D/g, '') // Remove pontos/traços do CPF/Pix se for número
+        email: form.email.trim().toLowerCase(),
+        pix: form.pix.replace(/\D/g, '')
       };
 
       const res = await fetch('/api/register', {
@@ -79,8 +78,12 @@ export default function Register() {
       const data = await res.json();
 
       if (res.ok) {
-        alert("Cadastro realizado com sucesso!");
-        router.push('/login'); // Joga pro login após cadastrar
+        // 🚀 O PULO DO GATO: Salva o usuário no navegador NA HORA do cadastro
+        localStorage.setItem('user', JSON.stringify(data)); 
+        alert("Conta criada com sucesso! Entrando na Matrix...");
+        
+        // Agora pula o login e vai direto pro Dashboard já logado!
+        router.push('/dashboard'); 
       } else {
         alert(data.error || "Erro ao cadastrar");
       }
@@ -89,7 +92,6 @@ export default function Register() {
     }
     setLoading(false);
   };
-
   return (
     <div className="min-h-screen bg-[#010409] text-white font-sans overflow-hidden">
       <canvas ref={canvasRef} className="fixed inset-0 -z-10 pointer-events-none" />

@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     }
 
     // 2. Tenta criar o usuário
-    const user = await prisma.user.create({
+   const user = await prisma.user.create({
       data: { 
         nome: nomeLimpo, 
         email: emailLimpo, 
@@ -25,13 +25,16 @@ export async function POST(req: Request) {
       }
     });
 
-    // 3. Retorna sucesso
+    // 3. RETORNO COMPLETO: Agora enviamos os dados para o navegador salvar
     return NextResponse.json({ 
-        message: "Usuário criado com sucesso", 
-        id: user.id 
+        id: user.id,
+        nome: user.nome,
+        email: user.email,
+        pixKey: user.pixKey
     });
 
   } catch (e: any) {
+    // ... catch igual ...
     console.error("ERRO NO REGISTRO:", e);
     
     // Verifica se o erro é de e-mail duplicado (P2002 é o código do Prisma para Unique Constraint)
