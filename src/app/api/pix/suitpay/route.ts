@@ -5,29 +5,30 @@ import { prisma } from '@/lib/prisma';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    
+    // --- 1. PREPARAÇÃO DOS DADOS (Comum para os dois gateways) ---
     const emailLimpo = body.email?.trim().toLowerCase();
     const cpfLimpo = (body.pixKeyResgate || "").replace(/\D/g, '');
     const valorAposta = 10.00;
 
-    // 1. Validação de Segurança
     if (!emailLimpo || cpfLimpo.length !== 11) {
       return NextResponse.json({ error: "E-mail ou CPF inválidos." }, { status: 400 });
     }
 
-    // 2. Busca Usuário no Banco
+    // Busca o usuário para garantir que ele existe e pegar o ID real
     const dbUser = await prisma.user.findUnique({ where: { email: emailLimpo } });
     if (!dbUser) return NextResponse.json({ error: "Usuário não encontrado." }, { status: 404 });
 
     const bilheteId = `G25-${Math.random().toString(36).substr(2, 7).toUpperCase()}`;
+    let qrCodeFinal = "";
 
-    // 3. DEFINE QUAL GATEWAY USAR (Vercel define isso)
-    const gatewayAtivo = process.env.GATEWAY_ATIVO || 'mercadopago';
-    
-    let qrCodeReal = "";
+    // --- 2. O CONTROLADOR DE TRÁFEGO ---
+    // Ele lê a variável da Vercel. Se não existir, o padrão é Mercado Pago.
+    const gateway = process.env.GATEWAY_ATIVO || 'mercadopago';
 
-    if (gatewayAtivo === 'suitpay') {
-      // --- LÓGICA SUITPAY ---
-      const suitRes = await fetch('https://api.suitpay.app/v1/gateway/pix', {
+    if (gateway === 'suitpay') {
+      // 🟢 ROTA SUITPAY (Focada em iGaming)
+      const res = await fetch('https://api.suitpay.app/v1/gateway/pix', {
         method: 'POST',
         headers: {
           'ci': (process.env.SUIT_CLIENT_ID || '').trim(),
@@ -46,17 +47,19 @@ export async function POST(req: Request) {
         })
       });
 
-      const suitData = await suitRes.json();
-      if (suitData.response === 'OK') {
-        qrCodeReal = suitData.pixCode; // Linha Copia e Cola
+      const data = await res.json();
+      if (data.response === 'OK') {
+        qrCodeFinal = data.pixCode; // Linha Copia e Cola da SuitPay
       } else {
-        throw new Error("SuitPay: " + (suitData.message || "Erro desconhecido"));
+        throw new Error("Erro na SuitPay: " + (data.message || "Falha na comunicação"));
       }
 
     } else {
-      // --- LÓGICA MERCADO PAGO (BACKUP PADRÃO) ---
-      const client = new MercadoPagoConfig({ accessToken: (process.env.MP_ACCESS_TOKEN || '').trim() });
+      // 🔵 ROTA MERCADO PAGO (Padrão)
+      const token = (process.env.MP_ACCESS_TOKEN || '').trim();
+      const client = new MercadoPagoConfig({ accessToken: token });
       const payment = new Payment(client);
+
       const mpRes = await payment.create({
         body: {
           transaction_amount: valorAposta,
@@ -69,12 +72,14 @@ export async function POST(req: Request) {
           }
         }
       });
-      qrCodeReal = mpRes.point_of_interaction?.transaction_data?.qr_code || "";
+
+      qrCodeFinal = mpRes.point_of_interaction?.transaction_data?.qr_code || "";
     }
 
-    if (!qrCodeReal) throw new Error("Falha ao gerar QR Code no Gateway.");
+    // Se nenhum dos dois gerou o código, explode erro
+    if (!qrCodeFinal) throw new Error("O Gateway de pagamento não devolveu o QR Code.");
 
-    // 4. Salva no banco de dados Neon (Padrão para os dois gateways)
+    // --- 3. SALVAMENTO NO NEON (Comum para qualquer banco escolhido) ---
     const ticket = await prisma.ticket.create({
       data: {
         id: bilheteId,
@@ -83,16 +88,20 @@ export async function POST(req: Request) {
         usuarioEmail: emailLimpo,
         prognosticos: JSON.stringify(body.prognosticos || []),
         pix_key_resgate: body.pixKeyResgate,
-        qr_code_payload: qrCodeReal,
+        qr_code_payload: qrCodeFinal,
         status_pagamento: 'pendente',
         pago: false
       }
     });
 
-    return NextResponse.json({ qrCode: qrCodeReal, ticketId: ticket.id, gateway: gatewayAtivo });
+    return NextResponse.json({ 
+      qrCode: qrCodeFinal, 
+      ticketId: ticket.id,
+      gatewayUsado: gateway 
+    });
 
   } catch (e: any) {
-    console.error("ERRO NO PIX:", e.message);
-    return NextResponse.json({ error: "Erro: " + e.message }, { status: 500 });
+    console.error("ERRO NO CONTROLADOR DE PIX:", e.message);
+    return NextResponse.json({ error: e.message || "Erro interno" }, { status: 500 });
   }
 }
