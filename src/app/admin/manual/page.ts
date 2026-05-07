@@ -1,4 +1,36 @@
-﻿"use client"
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+
+export const dynamic = 'force-dynamic';
+
+export async function GET() {
+  try {
+    // Busca a última rodada que foi marcada como concluída
+    const ultimaRodada = await prisma.round.findFirst({
+      where: { concluida: true },
+      orderBy: { id: 'desc' }
+    });
+
+    if (!ultimaRodada) {
+      return NextResponse.json({ message: "Nenhum sorteio realizado ainda." }, { status: 404 });
+    }
+
+    // O campo 'resultados' no banco guarda os 5 milhares ex: "5490,1237,2134,9090,6787"
+    return NextResponse.json(ultimaRodada);
+  } catch (e) {
+    return NextResponse.json({ error: "Erro ao buscar resultados" }, { status: 500 });
+  }
+}
+```
+
+---
+
+### 🚀 PASSO 2: A Página de Resultados Completa (`src/app/resultados/page.tsx`)
+
+Vou refatorar sua página para colocar o **Resultado Oficial** no topo (com destaque) e o **Simulador** logo abaixo.
+
+```tsx
+"use client"
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trophy, ChevronLeft, Activity, Calculator, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
