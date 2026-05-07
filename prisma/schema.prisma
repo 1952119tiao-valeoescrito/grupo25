@@ -21,6 +21,7 @@ model Round {
   id               Int      @id
   arrecadacaoTotal Int      @default(0)
   concluida        Boolean  @default(false)
+  resultados       String?  // Novo: Armazena os 5 resultados sorteados (ex: ["1/2", "5/25"...])
   tickets          Ticket[]
 }
 
@@ -37,4 +38,5 @@ model Ticket {
   pix_key_resgate  String?
   qr_code_payload  String?
   status_pagamento String?
+  pontos           Int      @default(0) // Novo: Registra a pontuação do bilhete após o sorteio
 }

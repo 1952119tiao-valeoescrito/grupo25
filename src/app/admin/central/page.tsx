@@ -1,105 +1,138 @@
 "use client"
-import { useState, useEffect } from 'react';
-import { Terminal, Database, Activity, RefreshCw, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { ShieldAlert, Zap, Trophy, Users, Terminal, Loader2, Lock, ChevronRight } from 'lucide-react';
 
-export default function ComandoCentral() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+export default function PainelAdminMatrix() {
+  const [secret, setSecret] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [report, setResumo] = useState<any>(null);
 
-  const fetchDados = async () => {
+  const executarSorteio = async () => {
+    if (!secret) return alert("Insira a Chave de Acesso Admin!");
+    if (!confirm("CONFIRMAR SORTEIO DE EMERGÊNCIA? Esta ação é irreversível.")) return;
+
+    setLoading(true);
     try {
-      const res = await fetch('/api/admin/resumo');
-      if (!res.ok) throw new Error("Falha na API");
-      const json = await res.json();
-      setData(json);
-      setError(false);
+      const res = await fetch('/api/admin/contingencia', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ secret })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setResumo(data);
+        alert("Sorteio e Auditoria Concluídos!");
+      } else {
+        alert(data.error || "Erro ao executar");
+      }
     } catch (e) {
-      console.error("Erro no carregamento:", e);
-      setError(true);
-    } finally {
-      setLoading(false);
+      alert("Erro de conexão");
     }
+    setLoading(false);
   };
 
-  useEffect(() => {
-    fetchDados();
-    const interval = setInterval(fetchDados, 20000);
-    return () => clearInterval(interval);
-  }, []);
-
-  if (loading && !data) {
-    return (
-      <div className="min-h-screen bg-[#020617] flex items-center justify-center">
-        <Loader2 className="animate-spin text-cyan-500" size={48} />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-[#020617] text-[#d4af37] p-4 md:p-10 font-mono">
-      <header className="flex justify-between items-center mb-10 border-b border-yellow-600/30 pb-6">
-        <div className="flex items-center gap-4">
-          <Terminal className="text-yellow-500" />
-          <h1 className="text-2xl font-black uppercase italic text-white tracking-tighter text-wrap">Comando Central</h1>
-        </div>
-        <div className="text-cyan-500 font-bold flex items-center gap-2 text-[10px]">
-          <Activity size={14} className="animate-pulse" /> SISTEMA ON-LINE
-        </div>
-      </header>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <Card label="TOTAL ARRECADADO" value={data?.total_valor || 'R$ 0,00'} />
-        <Card label="BILHETES PAGOS" value={data?.total_contagem || '0'} />
-        <Card label="CONEXÃO NEON" value={error ? "ERRO" : "ESTÁVEL"} color={error ? "text-red-500" : "text-emerald-400"} />
-      </div>
-
-      <div className="bg-slate-900/50 border border-yellow-600/20 rounded-2xl p-6 overflow-hidden">
-        <div className="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
-          <h3 className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
-            <Database size={16} /> Últimas Entradas
-          </h3>
-          <button onClick={fetchDados} className="text-xs hover:text-white"><RefreshCw size={14}/></button>
-        </div>
+    <div className="min-h-screen bg-[#020617] text-white font-sans p-6 md:p-12 selection:bg-red-500/30">
+      <div className="max-w-5xl mx-auto">
         
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-[11px]">
-            <thead className="text-slate-500 border-b border-white/5">
-              <tr>
-                <th className="p-3 font-bold uppercase">Identificador</th>
-                <th className="p-3 font-bold uppercase">Matriz</th>
-                <th className="p-3 text-right font-bold uppercase">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data?.ultimas_apostas?.length > 0 ? (
-                data.ultimas_apostas.map((a, i) => (
-                  <tr key={i} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                    <td className="p-3 text-white">{a.usuarioEmail || 'Anônimo'}</td>
-                    <td className="p-3 text-cyan-400 font-bold tracking-widest">5x5 [OK]</td>
-                    <td className="p-3 text-right">
-                      <span className={a.pago ? "text-emerald-500" : "text-yellow-600"}>
-                        {a.pago ? "● CONFIRMADO" : "○ PENDENTE"}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr><td colSpan={3} className="p-10 text-center text-slate-600 italic uppercase">Aguardando novos bilhetes...</td></tr>
-              )}
-            </tbody>
-          </table>
+        {/* HEADER ADMIN */}
+        <header className="flex items-center justify-between mb-12 border-b border-red-500/20 pb-8">
+          <div className="flex items-center gap-4">
+            <div className="bg-red-600 p-3 rounded-2xl shadow-[0_0_20px_rgba(220,38,38,0.4)]">
+              <ShieldAlert size={32} className="text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-black uppercase italic font-elite tracking-tighter">Central de Comando</h1>
+              <p className="text-red-500 text-[10px] font-bold uppercase tracking-[0.3em]">Protocolos de Contingência VRF</p>
+            </div>
+          </div>
+          <div className="hidden md:block text-right">
+             <p className="text-slate-500 text-[9px] font-black uppercase">Ambiente Altamente Restrito</p>
+             <p className="text-white text-xs font-mono">v3.0.4-LOCKED</p>
+          </div>
+        </header>
+
+        <div className="grid lg:grid-cols-3 gap-8">
+          
+          {/* PAINEL DE AÇÃO */}
+          <div className="lg:col-span-1 space-y-6">
+            <div className="bg-slate-900 border border-white/5 p-8 rounded-[2.5rem] shadow-2xl">
+              <h3 className="text-xs font-black text-slate-400 uppercase mb-6 flex items-center gap-2">
+                <Lock size={14}/> Autenticação Requerida
+              </h3>
+              <input 
+                type="password" 
+                placeholder="ADMIN_SECRET_KEY"
+                value={secret}
+                onChange={(e) => setSecret(e.target.value)}
+                className="w-full bg-black border border-slate-800 p-4 rounded-xl mb-6 text-center font-mono text-red-500 outline-none focus:border-red-500 transition-all"
+              />
+              <button 
+                onClick={executarSorteio}
+                disabled={loading}
+                className="w-full bg-red-600 hover:bg-red-500 py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg flex items-center justify-center gap-3 transition-all"
+              >
+                {loading ? <Loader2 className="animate-spin" /> : <><Zap size={18}/> Acionar Contingência</>}
+              </button>
+            </div>
+          </div>
+
+          {/* PAINEL DE RESULTADOS (RESUMO) */}
+          <div className="lg:col-span-2">
+            {!report ? (
+              <div className="h-full min-h-[300px] border-2 border-dashed border-slate-800 rounded-[3rem] flex flex-col items-center justify-center text-slate-600">
+                 <Terminal size={48} className="mb-4 opacity-20" />
+                 <p className="text-xs font-black uppercase tracking-[0.2em]">Aguardando disparo de sorteio...</p>
+              </div>
+            ) : (
+              <div className="space-y-6 animate-in fade-in zoom-in duration-500">
+                
+                {/* RESULTADOS SORTEADOS */}
+                <div className="bg-black/60 border border-cyan-500/30 p-8 rounded-[3rem]">
+                   <h4 className="text-cyan-400 text-[10px] font-black uppercase mb-6 tracking-widest">Coordenadas Sorteadas (Oficial)</h4>
+                   <div className="grid grid-cols-5 gap-3">
+                      {report.resultados.map((res: string, i: number) => (
+                        <div key={i} className="bg-slate-900 border border-cyan-500/50 p-4 rounded-xl text-center shadow-[0_0_15px_rgba(34,211,238,0.1)]">
+                           <p className="text-[8px] text-slate-500 mb-1">{i+1}º</p>
+                           <b className="text-cyan-400 text-sm font-elite">{res}</b>
+                        </div>
+                      ))}
+                   </div>
+                </div>
+
+                {/* RESUMO DE GANHADORES */}
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                   {[5,4,3,2,1].map(faixa => (
+                     <div key={faixa} className="bg-slate-900 p-4 rounded-[1.5rem] border border-white/5 text-center">
+                        <p className="text-[8px] text-slate-500 uppercase font-black">{faixa} PONTOS</p>
+                        <p className="text-2xl font-black text-yellow-500 font-elite">{report.resumo[`faixa${faixa}`]}</p>
+                     </div>
+                   ))}
+                </div>
+
+                <div className="bg-emerald-500/10 border border-emerald-500/20 p-6 rounded-2xl flex justify-between items-center">
+                   <div className="flex items-center gap-3">
+                      <Users className="text-emerald-500" size={20}/>
+                      <span className="text-xs font-bold uppercase">Bilhetes Auditados nesta rodada:</span>
+                   </div>
+                   <b className="text-xl font-elite">{report.totalBilhetesAuditados}</b>
+                </div>
+
+              </div>
+            )}
+          </div>
         </div>
+
+        <footer className="mt-20 text-center opacity-20 text-[9px] font-black uppercase tracking-[0.5em]">
+           Sistema de Auditoria Matrix | v3.0 | Neon Database Connected
+        </footer>
       </div>
+
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
+        .font-elite { font-family: 'Orbitron', sans-serif; }
+      `}</style>
     </div>
   );
 }
 
-function Card({ label, value, color = "text-white" }) {
-  return (
-    <div className="bg-slate-900/80 border border-yellow-600/20 p-6 rounded-2xl text-center">
-      <p className="text-[10px] text-slate-500 mb-2 font-bold uppercase tracking-widest">{label}</p>
-      <h2 className={"text-3xl font-black tracking-tighter " + color}>{value}</h2>
-    </div>
-  );
-}
