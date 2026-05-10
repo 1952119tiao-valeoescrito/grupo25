@@ -77,8 +77,8 @@ function LandingContent() {
             </button>
             
             <div className="text-center mb-8">
-              <h2 style={{fontFamily:'Orbitron'}} className="text-amber-500 font-black text-xl uppercase italic">🐮 Manual da Mimosinha</h2>
-              <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-widest mt-1">Segredos da Matrix G25</p>
+              <h2 style={{fontFamily:'Orbitron'}} className="text-amber-500 font-black text-xl uppercase italic">🐮 Como apostar na Mimosinha</h2>
+              <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-widest mt-1">Não tem segredo</p>
             </div>
 
             <div className="space-y-6">
@@ -100,7 +100,7 @@ function LandingContent() {
               </div>
             </div>
 
-            <button onClick={() => setShowTutorial(false)} className="w-full mt-10 bg-amber-500 py-4 rounded-xl text-black font-black uppercase text-xs hover:bg-amber-400 transition-all shadow-lg">ENTENDI, VAMOS VENCER!</button>
+            <button onClick={() => setShowTutorial(false)} className="w-full mt-10 bg-amber-500 py-4 rounded-xl text-black font-black uppercase text-xs hover:bg-amber-400 transition-all shadow-lg">ENTENDI, VAMOS AO JOGO!</button>
           </div>
         </div>
       )}
