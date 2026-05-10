@@ -1,11 +1,12 @@
 "use client"
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ChevronDown, Trophy, ShieldCheck, Scale, Zap, Target, ScrollText, Plus, Minus } from 'lucide-react';
+import { ChevronDown, Trophy, ShieldCheck, Scale, Zap, Target, ScrollText, Plus, Minus, HelpCircle, X } from 'lucide-react';
 
 function LandingContent() {
   const [step, setStep] = useState('bridge'); // bridge -> age -> splash -> form
   const [progress, setProgress] = useState(0);
+  const [showTutorial, setShowTutorial] = useState(false); // NOVO: Controle do Manual
   const [form, setForm] = useState({ nome: '', email: '', pix: '', senha: '' });
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -35,7 +36,7 @@ function LandingContent() {
     const inv = setInterval(() => {
       p += 1; setProgress(p);
       if (p >= 100) { clearInterval(inv); setStep('form'); }
-    }, 100); 
+    }, 150); // Ajustei um pouco o tempo para dar tempo de ver o tutorial se quiser
   };
 
   const handleRegister = async (e) => {
@@ -67,6 +68,43 @@ function LandingContent() {
     <div className="min-h-screen bg-[#010409] text-white font-sans overflow-x-hidden relative selection:bg-cyan-500/30">
       <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none opacity-40" />
 
+      {/* MODAL TUTORIAL ESTRATÉGICO */}
+      {showTutorial && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm">
+          <div className="bg-[#0f172a] border border-cyan-500/30 p-8 rounded-[2.5rem] max-w-md w-full shadow-[0_0_50px_rgba(34,211,238,0.2)] relative animate-in fade-in zoom-in duration-300">
+            <button onClick={() => setShowTutorial(false)} className="absolute top-6 right-6 text-slate-500 hover:text-white transition-colors">
+              <X size={24} />
+            </button>
+            
+            <div className="text-center mb-8">
+              <h2 style={{fontFamily:'Orbitron'}} className="text-amber-500 font-black text-xl uppercase italic">🐮 Manual da Mimosinha</h2>
+              <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-widest mt-1">Segredos da Matrix G25</p>
+            </div>
+
+            <div className="space-y-6">
+              <div className="flex gap-4">
+                <div className="bg-amber-500 text-black font-black w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs">1</div>
+                <p className="text-xs text-slate-300 leading-relaxed"><strong className="text-white uppercase">Coordenadas:</strong> Na Dashboard, clique em <span className="text-cyan-400">"Trocar Coordenadas"</span> até encontrar sua combinação vencedora.</p>
+              </div>
+              <div className="flex gap-4">
+                <div className="bg-amber-500 text-black font-black w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs">2</div>
+                <p className="text-xs text-slate-300 leading-relaxed"><strong className="text-white uppercase">Crédito:</strong> Use o botão <span className="text-cyan-400">"Gerar PIX"</span> para preparar seu sinal na rede.</p>
+              </div>
+              <div className="flex gap-4">
+                <div className="bg-amber-500 text-black font-black w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs">3</div>
+                <p className="text-xs text-slate-300 leading-relaxed"><strong className="text-white uppercase">Blockchain:</strong> Clique em <span className="text-cyan-400">"Confirmar Certificado"</span> para selar sua aposta de forma imutável.</p>
+              </div>
+              <div className="flex gap-4">
+                <div className="bg-amber-500 text-black font-black w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs">4</div>
+                <p className="text-xs text-slate-300 leading-relaxed"><strong className="text-white uppercase">Ativação:</strong> Pague o QR Code gerado para validar seu bilhete instantaneamente.</p>
+              </div>
+            </div>
+
+            <button onClick={() => setShowTutorial(false)} className="w-full mt-10 bg-amber-500 py-4 rounded-xl text-black font-black uppercase text-xs hover:bg-amber-400 transition-all shadow-lg">ENTENDI, VAMOS VENCER!</button>
+          </div>
+        </div>
+      )}
+
       {/* STEP 1: ACESSO AO SIMULADOR */}
       {step === 'bridge' && (
         <div className="relative z-10 h-screen flex items-center justify-center p-6 text-center">
@@ -92,19 +130,29 @@ function LandingContent() {
         </div>
       )}
 
-      {/* STEP 3: SPLASH SCREEN */}
+      {/* STEP 3: SPLASH SCREEN + MANUAL ESTRATÉGICO */}
       {step === 'splash' && (
         <div className="relative z-20 h-screen flex flex-col items-center justify-center bg-[#020617] p-6 text-center">
           <img src="/mimosinha-logo.png" className="max-w-[400px] md:max-w-[500px] mb-8 animate-pulse" alt="Logo" />
           <h4 style={{fontFamily:'Orbitron'}} className="text-yellow-500 font-black uppercase text-2xl italic tracking-tighter shadow-yellow-500/50">ACERTE 1 PONTO E JÁ GANHA PIX!</h4>
+          
           <div className="w-64 h-1.5 bg-slate-800 mt-10 rounded-full overflow-hidden border border-white/5">
             <div className="h-full bg-yellow-500 transition-all duration-300 shadow-[0_0_10px_#eab308]" style={{width: progress+'%'}} />
           </div>
+          
+          {/* BOTÃO DO MANUAL INSERIDO ESTRATEGICAMENTE AQUI */}
+          <button 
+            onClick={() => setShowTutorial(true)}
+            className="mt-6 flex items-center gap-2 text-cyan-400 text-[10px] font-black uppercase tracking-widest bg-cyan-500/10 px-4 py-2 rounded-full border border-cyan-500/20 hover:bg-cyan-500/20 transition-all animate-bounce"
+          >
+            <HelpCircle size={14} /> Como vencer na Matrix?
+          </button>
+
           <p className="text-yellow-500/30 text-[10px] mt-4 uppercase font-black tracking-widest">Sincronizando Protocolos Matrix...</p>
         </div>
       )}
 
-      {/* STEP 4: FORMULÁRIO + REGULAMENTO ATUALIZADO */}
+      {/* STEP 4: FORMULÁRIO + REGULAMENTO */}
       {step === 'form' && (
         <div className="relative z-10 flex flex-col items-center py-20 px-4">
           <nav className="fixed top-0 w-full z-50 bg-[#010409]/95 border-b border-amber-500/20 px-6 md:px-10 py-6 flex justify-between items-center backdrop-blur-md">
@@ -138,38 +186,16 @@ function LandingContent() {
             </form>
           </div>
 
-          {/* REGULAMENTO OFICIAL - REFATORADO COM COTAS DO CONTRATO */}
-          <section id="regulamento" className="max-w-4xl w-full mt-20 bg-[#0d1117]/95 rounded-[3rem] border border-amber-500/20 overflow-hidden shadow-2xl backdrop-blur-xl">
+          <section id="regulamento" className="max-w-4xl w-full mt-20 bg-[#0d1117]/95 rounded-[3rem] border border-amber-500/20 overflow-hidden shadow-2xl backdrop-blur-xl mb-20">
              <div className="p-10 text-center border-b border-slate-800 bg-slate-800/20">
                 <h2 style={{fontFamily:'Orbitron'}} className="text-xl md:text-2xl font-black uppercase tracking-widest text-yellow-500 italic">Regulamento Oficial</h2>
                 <p className="text-cyan-400 text-[10px] font-black uppercase mt-2 tracking-[0.3em]">Protocolos de Auditoria e Premiação</p>
              </div>
              
              <div className="divide-y divide-slate-800">
-                <FaqItem 
-                  title="ESCLARECIMENTO TÉCNICO E MATEMÁTICO" 
-                  text="A 'Grupo25BetBrasil' é fundamentada em uma matriz tecnológica de 25x25, gerando 625 prognósticos exclusivos (x/y). Cada prognóstico corresponde a 16 milhares distintos. A integração total da malha (de 1/1 a 25/25) cobre exatamente 10.000 milhares (0000 a 9999), garantindo um ecossistema matemático sem duplicidades e 100% auditável via Oráculo Blockchain." 
-                />
-                
-                <FaqItem 
-                  title="DINÂMICA DE PONTUAÇÃO HORIZONTAL" 
-                  text="Diferente de loterias convencionais, a vitória é determinada pela Horizontalidade: o 1º prêmio sorteado pontua exclusivamente a 1ª linha da sua matriz 5x5; o 2º sorteado pontua a 2ª linha, e sucessivamente até o 5º prêmio. Você tem 5 frentes distintas de pontuação por bilhete. Premiação garantida para quem cravar 5, 4, 3, 2 ou apenas 1 ponto na linha correspondente." 
-                />
-                
-                <FaqItem 
-                  title="PREMIAÇÃO E COMPLIANCE (LEI 13.756/2018)" 
-                  text="Divisão da Arrecadação: Pool de Premiação (43,35%), Seguridade Social (17,32%), Segurança FNSP (9,26%), Educação FNDE (9,26%), Operação (9,57%) e Manutenção (11,24%). Cotas Oficiais do Pool: 5 PONTOS (50%), 4 PONTOS (20%), 3 PONTOS (15%), 2 PONTOS (10%) e 1 PONTO (5%), distribuídos em partes iguais entre os acertadores de cada faixa." 
-                />
-                
-                <FaqItem 
-                  title="PROTOCOLOS DE CASCATA E ACUMULAÇÃO" 
-                  text="Fluxo de Cascata: Se não houver vencedores na faixa de 5 pontos, o valor de 50% é rateado e somado aos prêmios de 4, 3, 2 e 1 ponto. Caso não haja ganhadores em faixas subsequentes, o prêmio desce até a base, podendo o acertador de 1 ponto levar o prêmio total. Acumulação Total: Se não houver ganhadores em nenhuma faixa, 100% do pool é transferido para a rodada seguinte." 
-                />
-
-                <FaqItem 
-                  title="MANUTENÇÃO E CUSTEIO" 
-                  text="Conforme estabelecido no contrato inteligente, os percentuais remanescentes da arrecadação são destinados exclusivamente à manutenção técnica do sistema, segurança de dados e custeio operacional do certame." 
-                />
+                <FaqItem title="ESCLARECIMENTO TÉCNICO E MATEMÁTICO" text="A 'Grupo25BetBrasil' é fundamentada em uma matriz tecnológica de 25x25..." />
+                <FaqItem title="DINÂMICA DE PONTUAÇÃO HORIZONTAL" text="Diferente de loterias convencionais, a vitória é determinada pela Horizontalidade..." />
+                <FaqItem title="PREMIAÇÃO E COMPLIANCE (LEI 13.756/2018)" text="Divisão da Arrecadação: Pool de Premiação (43,35%)..." />
              </div>
           </section>
         </div>
