@@ -84,7 +84,7 @@ function LandingContent() {
             <div className="space-y-6">
               <div className="flex gap-4">
                 <div className="bg-amber-500 text-black font-black w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs">1</div>
-                <p className="text-xs text-slate-300 leading-relaxed"><strong className="text-white uppercase">Coordenadas:</strong> Na Dashboard, clique em <span className="text-cyan-400">"Trocar Coordenadas"</span> até encontrar sua combinação vencedora.</p>
+                <p className="text-xs text-slate-300 leading-relaxed"><strong className="text-white uppercase">Coordenadas:</strong> Na Dashboard, clique em <span className="text-cyan-400">"Trocar Coordenadas"</span> até encontrar sua combinação eleita.</p>
               </div>
               <div className="flex gap-4">
                 <div className="bg-amber-500 text-black font-black w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs">2</div>
@@ -193,9 +193,30 @@ function LandingContent() {
              </div>
              
              <div className="divide-y divide-slate-800">
-                <FaqItem title="ESCLARECIMENTO TÉCNICO E MATEMÁTICO" text="A 'Grupo25BetBrasil' é fundamentada em uma matriz tecnológica de 25x25..." />
-                <FaqItem title="DINÂMICA DE PONTUAÇÃO HORIZONTAL" text="Diferente de loterias convencionais, a vitória é determinada pela Horizontalidade..." />
-                <FaqItem title="PREMIAÇÃO E COMPLIANCE (LEI 13.756/2018)" text="Divisão da Arrecadação: Pool de Premiação (43,35%)..." />
+                <FaqItem 
+                  title="ESCLARECIMENTO TÉCNICO E MATEMÁTICO" 
+                  text="A 'Grupo25BetBrasil' é fundamentada em uma matriz tecnológica de 25x25, gerando 625 prognósticos exclusivos (x/y). Cada prognóstico corresponde a 16 milhares distintos. A integração total da malha (de 1/1 a 25/25) cobre exatamente 10.000 milhares (0000 a 9999), garantindo um ecossistema matemático sem duplicidades e 100% auditável via Oráculo Blockchain." 
+                />
+                
+                <FaqItem 
+                  title="DINÂMICA DE PONTUAÇÃO HORIZONTAL" 
+                  text="Diferente de loterias convencionais, a vitória é determinada pela Horizontalidade: o 1º prêmio sorteado pontua exclusivamente a 1ª linha da sua matriz 5x5; o 2º sorteado pontua a 2ª linha, e sucessivamente até o 5º prêmio. Você tem 5 frentes distintas de pontuação por bilhete. Premiação garantida para quem cravar 5, 4, 3, 2 ou apenas 1 ponto na linha correspondente." 
+                />
+                
+                <FaqItem 
+                  title="PREMIAÇÃO E COMPLIANCE (LEI 13.756/2018)" 
+                  text="Divisão da Arrecadação: Pool de Premiação (43,35%), Seguridade Social (17,32%), Segurança FNSP (9,26%), Educação FNDE (9,26%), Operação (9,57%) e Manutenção (11,24%). Cotas Oficiais do Pool: 5 PONTOS (50%), 4 PONTOS (20%), 3 PONTOS (15%), 2 PONTOS (10%) e 1 PONTO (5%), distribuídos em partes iguais entre os acertadores de cada faixa." 
+                />
+                
+                <FaqItem 
+                  title="PROTOCOLOS DE CASCATA E ACUMULAÇÃO" 
+                  text="Fluxo de Cascata: Se não houver vencedores na faixa de 5 pontos, o valor de 50% é rateado e somado aos prêmios de 4, 3, 2 e 1 ponto. Caso não haja ganhadores em faixas subsequentes, o prêmio desce até a base, podendo o acertador de 1 ponto levar o prêmio total. Acumulação Total: Se não houver ganhadores em nenhuma faixa, 100% do pool é transferido para a rodada seguinte." 
+                />
+
+                <FaqItem 
+                  title="MANUTENÇÃO E CUSTEIO" 
+                  text="Conforme estabelecido no contrato inteligente, os percentuais remanescentes da arrecadação são destinados exclusivamente à manutenção técnica do sistema, segurança de dados e custeio operacional do certame." 
+                />
              </div>
           </section>
         </div>
