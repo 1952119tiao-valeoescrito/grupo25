@@ -14,6 +14,7 @@ model User {
   email     String   @unique
   senha     String
   pixKey    String
+  indicadoPor String?
   tickets   Ticket[]
 }
 

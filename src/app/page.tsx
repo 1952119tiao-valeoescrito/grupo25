@@ -41,6 +41,7 @@ function LandingContent() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+const indicadoPor = searchParams.get('ref'); 
     try {
       const res = await fetch('/api/register', { 
         method:'POST', 
@@ -50,8 +51,10 @@ function LandingContent() {
           email: form.email,
           pix: form.pix,
           senha: form.senha
+          indicadoPor: indicadoPor
         }) 
       });
+
       const data = await res.json();
       if(res.ok) { 
         localStorage.setItem('user', JSON.stringify(data)); 

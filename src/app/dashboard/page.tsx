@@ -220,12 +220,35 @@ export default function DashboardEliteTotal() {
 
           <div className="space-y-6">
             <div className="bg-[#0f172a] border border-amber-500/30 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-               <div className="absolute top-0 right-0 bg-amber-500 text-black font-black text-[8px] px-3 py-1 rounded-bl-xl uppercase italic font-elite">SÓCIO AFILIADO</div>
-               <h3 className="text-[10px] text-amber-500 mb-6 font-black uppercase tracking-widest italic font-elite">💰 Meu Lucro</h3>
-               <p className="text-[8px] text-slate-500 uppercase font-bold mb-1">Saldo Disponível</p>
-               <p style={{fontFamily:'Orbitron'}} className="text-3xl text-white font-black italic tracking-tighter">R$ 0,00</p>
-               <button onClick={()=>alert("Transferência solicitada")} className="w-full bg-[#ea580c] hover:bg-orange-500 text-white p-4 rounded-xl text-[10px] font-black uppercase mt-6 shadow-lg transition-all font-elite">SACAR VIA PIX</button>
-            </div>
+   <div className="absolute top-0 right-0 bg-amber-500 text-black font-black text-[8px] px-3 py-1 rounded-bl-xl uppercase italic font-elite">SÓCIO AFILIADO</div>
+   <h3 className="text-[10px] text-amber-500 mb-6 font-black uppercase tracking-widest italic font-elite">💰 Meu Lucro</h3>
+   
+   {/* --- SEÇÃO DO LINK DE AFILIADO REATIVADA --- */}
+   <div className="mb-6 p-4 bg-black/40 rounded-2xl border border-white/5">
+      <p className="text-[8px] text-slate-500 uppercase font-black mb-2 tracking-widest text-center">Seu Link Único de Convite</p>
+      <div className="flex gap-2">
+         <input 
+            readOnly 
+            value={`https://www.bet-grupo25.com.br/register?ref=${user?.id}`}
+            className="bg-slate-950 border border-white/10 p-3 rounded-xl text-[8px] flex-1 text-cyan-400 font-mono outline-none"
+         />
+         <button 
+            onClick={() => {
+               navigator.clipboard.writeText(`https://www.bet-grupo25.com.br/register?ref=${user?.id}`);
+               alert("Link Copiado! Agora é só enviar para seus leads.");
+            }}
+            className="bg-amber-600 hover:bg-amber-500 p-2 rounded-xl text-[8px] font-black uppercase transition-all active:scale-95"
+         >
+            COPIAR
+         </button>
+      </div>
+   </div>
+   {/* ------------------------------------------ */}
+
+   <p className="text-[8px] text-slate-500 uppercase font-bold mb-1">Saldo Disponível</p>
+   <p style={{fontFamily:'Orbitron'}} className="text-3xl text-white font-black italic tracking-tighter">R$ 0,00</p>
+   <button onClick={()=>alert("Transferência solicitada")} className="w-full bg-[#ea580c] hover:bg-orange-500 text-white p-4 rounded-xl text-[10px] font-black uppercase mt-6 shadow-lg transition-all font-elite">SACAR VIA PIX</button>
+</div>
 
             <div className="bg-[#0f172a] border border-emerald-500/30 p-8 rounded-[2.5rem] shadow-2xl">
                <h3 className="text-[10px] text-emerald-400 mb-4 uppercase tracking-widest font-black font-elite flex items-center justify-center gap-2">🏆 Ranking Semanal</h3>
