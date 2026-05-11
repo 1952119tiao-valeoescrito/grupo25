@@ -84,15 +84,15 @@ function LandingContent() {
             <div className="space-y-6">
               <div className="flex gap-4">
                 <div className="bg-amber-500 text-black font-black w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs">1</div>
-                <p className="text-xs text-slate-300 leading-relaxed"><strong className="text-white uppercase">Coordenadas:</strong> Na Dashboard, clique em <span className="text-cyan-400">"Trocar Coordenadas"</span> até encontrar sua combinação eleita.</p>
+                <p className="text-xs text-slate-300 leading-relaxed"><strong className="text-white uppercase">Cadastre-se:</strong>Clique em "Acessar Matrix", depois clique em <span className="text-cyan-400">"Trocar Coordenadas"</span> até encontrar sua combinação eleita.</p>
               </div>
               <div className="flex gap-4">
                 <div className="bg-amber-500 text-black font-black w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs">2</div>
-                <p className="text-xs text-slate-300 leading-relaxed"><strong className="text-white uppercase">Crédito:</strong> Use o botão <span className="text-cyan-400">"Gerar PIX"</span> para preparar seu sinal na rede.</p>
+                <p className="text-xs text-slate-300 leading-relaxed"><strong className="text-white uppercase">Crédito:</strong> Volte acima e use o botão <span className="text-cyan-400">"Gerar PIX"</span> para preparar seu sinal na rede.</p>
               </div>
               <div className="flex gap-4">
                 <div className="bg-amber-500 text-black font-black w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs">3</div>
-                <p className="text-xs text-slate-300 leading-relaxed"><strong className="text-white uppercase">Blockchain:</strong> Clique em <span className="text-cyan-400">"Confirmar Certificado"</span> para selar sua aposta de forma imutável.</p>
+                <p className="text-xs text-slate-300 leading-relaxed"><strong className="text-white uppercase">Blockchain:</strong> Volte abaixo e clique em <span className="text-cyan-400">"Confirmar Certificado"</span> para selar sua aposta de forma imutável.</p>
               </div>
               <div className="flex gap-4">
                 <div className="bg-amber-500 text-black font-black w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs">4</div>
@@ -134,7 +134,7 @@ function LandingContent() {
       {step === 'splash' && (
         <div className="relative z-20 h-screen flex flex-col items-center justify-center bg-[#020617] p-6 text-center">
           <img src="/mimosinha-logo.png" className="max-w-[400px] md:max-w-[500px] mb-8 animate-pulse" alt="Logo" />
-          <h4 style={{fontFamily:'Orbitron'}} className="text-yellow-500 font-black uppercase text-2xl italic tracking-tighter shadow-yellow-500/50">ACERTE 1 PONTO E JÁ GANHA PIX!</h4>
+          <h4 style={{fontFamily:'Orbitron'}} className="text-yellow-500 font-black uppercase text-2xl italic tracking-tighter shadow-yellow-500/50">ACERTANDO 1 PONTO JÁ GANHA PIX!</h4>
           
           <div className="w-64 h-1.5 bg-slate-800 mt-10 rounded-full overflow-hidden border border-white/5">
             <div className="h-full bg-yellow-500 transition-all duration-300 shadow-[0_0_10px_#eab308]" style={{width: progress+'%'}} />
