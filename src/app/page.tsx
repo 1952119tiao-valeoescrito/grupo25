@@ -145,7 +145,7 @@ function LandingContent() {
             onClick={() => setShowTutorial(true)}
             className="mt-6 flex items-center gap-2 text-cyan-400 text-[10px] font-black uppercase tracking-widest bg-cyan-500/10 px-4 py-2 rounded-full border border-cyan-500/20 hover:bg-cyan-500/20 transition-all animate-bounce"
           >
-            <HelpCircle size={14} /> Como vencer na Matrix?
+            <HelpCircle size={14} /> Instruções Básicas.
           </button>
 
           <p className="text-yellow-500/30 text-[10px] mt-4 uppercase font-black tracking-widest">Sincronizando Protocolos Matrix...</p>
