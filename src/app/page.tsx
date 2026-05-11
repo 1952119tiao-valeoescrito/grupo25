@@ -84,7 +84,7 @@ function LandingContent() {
             <div className="space-y-6">
               <div className="flex gap-4">
                 <div className="bg-amber-500 text-black font-black w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs">1</div>
-                <p className="text-xs text-slate-300 leading-relaxed"><strong className="text-white uppercase">Cadastre-se:</strong>Clique em "Acessar Matrix", depois clique em <span className="text-cyan-400">"Trocar Coordenadas"</span> até encontrar sua combinação eleita.</p>
+                <p className="text-xs text-slate-300 leading-relaxed"><strong className="text-white uppercase">Cadastre-se:</strong> Clique em "Acessar Matrix", depois clique em <span className="text-cyan-400">"Trocar Coordenadas"</span> até encontrar sua combinação eleita.</p>
               </div>
               <div className="flex gap-4">
                 <div className="bg-amber-500 text-black font-black w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs">2</div>
@@ -100,7 +100,7 @@ function LandingContent() {
               </div>
             </div>
 
-            <button onClick={() => setShowTutorial(false)} className="w-full mt-10 bg-amber-500 py-4 rounded-xl text-black font-black uppercase text-xs hover:bg-amber-400 transition-all shadow-lg">ENTENDI, VAMOS AO JOGO!</button>
+            <button onClick={() => setShowTutorial(false)} className="w-full mt-10 bg-amber-500 py-4 rounded-xl text-black font-black uppercase text-xs hover:bg-amber-400 transition-all shadow-lg">VAI LÁ!</button>
           </div>
         </div>
       )}
