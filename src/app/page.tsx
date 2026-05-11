@@ -50,7 +50,7 @@ const indicadoPor = searchParams.get('ref');
           nome: form.nome,
           email: form.email,
           pix: form.pix,
-          senha: form.senha
+          senha: form.senha,
           indicadoPor: indicadoPor
         }) 
       });
