@@ -82,12 +82,14 @@ export default function SoftwareHouseLanding() {
               <p className="text-slate-400 text-sm leading-relaxed">Extração auditada via Chainlink VRF (Verifiable Random Function) na rede Base Mainnet. Aleatoriedade matematicamente provada e imune a manipulações.</p>
            </div>
            <div className="bg-slate-900/50 border border-white/5 p-10 rounded-[3rem] backdrop-blur-xl group hover:border-emerald-500/50 transition-all">
-              <div className="bg-emerald-500/10 w-16 h-16 rounded-2xl flex items-center justify-center mb-8 border border-emerald-500/20 group-hover:scale-110 transition-transform">
-                <BarChart3 className="text-emerald-400" size={32} />
-              </div>
-              <h3 className="text-xl font-black uppercase mb-4 font-elite">Alta Retenção</h3>
-              <p className="text-slate-400 text-sm leading-relaxed">Sistema de "Sincronia Horizontal" com premiação em cascata. O apostador pode ganhar com apenas 1 ponto, aumentando o LTV e o engajamento na plataforma.</p>
-           </div>
+  <div className="bg-emerald-500/10 w-16 h-16 rounded-2xl flex items-center justify-center mb-8 border border-emerald-500/20 group-hover:scale-110 transition-transform">
+    <BarChart3 className="text-emerald-400" size={32} />
+  </div>
+  <h3 className="text-xl font-black uppercase mb-4 font-elite">Alta Retenção</h3>
+  <p className="text-white text-sm leading-relaxed font-bold">
+    Engenharia focada em volume: o bilhete oferece <span className="text-emerald-400">25 chances de vitória</span> com 1 ponto. Isso maximiza o LTV (Lifetime Value) e garante que o apostador permaneça ativo e engajado na plataforma.
+  </p>
+</div>
         </section>
 
         {/* COMPLIANCE E COTAS LEGAIS */}
@@ -127,9 +129,14 @@ export default function SoftwareHouseLanding() {
         <section className="text-center max-w-4xl mx-auto">
            <h3 className="text-3xl md:text-5xl font-black uppercase italic mb-8 font-elite">Pronto para liderar o mercado?</h3>
            <p className="text-slate-400 mb-12 text-lg">Seja uma concessionária oficial ou uma operadora licenciada, o motor G25 é a sua vantagem competitiva.</p>
-           <button className="bg-white text-black px-12 py-6 rounded-[2.5rem] font-black uppercase tracking-widest text-sm hover:bg-cyan-500 transition-all flex items-center gap-4 mx-auto shadow-2xl">
-              Falar com um Consultor Técnico <ArrowRight size={20} />
-           </button>
+           // Substitua o botão final por este:
+<button 
+  onClick={() => window.open('https://wa.me/5521993527957?text=Olá! Gostaria de receber uma proposta comercial sobre o licenciamento da tecnologia G25 TECH.', '_blank')}
+  className="bg-white text-black px-12 py-6 rounded-[2.5rem] font-black uppercase tracking-widest text-sm hover:bg-cyan-500 transition-all flex items-center gap-4 mx-auto shadow-2xl group"
+>
+  Solicitar Demonstração Técnica 
+  <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+</button>
         </section>
 
       </main>
@@ -139,7 +146,7 @@ export default function SoftwareHouseLanding() {
             <Lock size={20}/> <Database size={20}/> <ShieldCheck size={20}/>
          </div>
          <p className="text-white/20 text-[9px] font-black uppercase tracking-[0.8em] font-elite">
-            © 2026 G25 TECH SOLUTIONS | iGAMING SOFTWARE HOUSE | BY CENTRO TECNOLÓGICO DO CIRURGIÃO 😷
+            © 2026 G25 TECH SOLUTIONS | iGAMING SOFTWARE HOUSE | BY SFCHAGASFILHO 😷
          </p>
       </footer>
 
