@@ -115,11 +115,15 @@ export default function PitchDeckG25() {
            <h2 className="text-4xl md:text-7xl font-black uppercase font-elite mb-8 leading-tight italic">Sua Concessionária <br/> na Nova Era.</h2>
            <p className="text-slate-400 text-lg mb-12">Propriedade Intelectual Registrada INPI. <br/> Código Fonte Auditado.</p>
            
-           <div className="p-[2px] bg-gradient-to-r from-cyan-500 to-yellow-500 rounded-full">
-              <button className="bg-black text-white px-12 py-6 rounded-full font-black uppercase tracking-[0.3em] text-sm hover:bg-transparent transition-all">
-                 Solicitar Demo Técnica
-              </button>
-           </div>
+           {/* BOTÃO DE AÇÃO COM O LINK DO SEU WHATSAPP CORPORATIVO */}
+<div className="p-[2px] bg-gradient-to-r from-cyan-500 to-yellow-500 rounded-full group">
+  <button 
+    onClick={() => window.open('https://wa.me/5521993527957?text=Olá! Estive analisando o Pitch Deck da G25 TECH e gostaria de agendar uma demonstração técnica do motor de loteria.', '_blank')}
+    className="bg-black text-white px-12 py-6 rounded-full font-black uppercase tracking-[0.3em] text-sm hover:bg-transparent transition-all flex items-center gap-3"
+  >
+    Solicitar Demo Técnica <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+  </button>
+</div>
         </section>
 
       </main>

@@ -1,26 +1,28 @@
 "use client"
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Trophy, RefreshCw, ChevronRight, Loader2, LogOut, Wallet, Scale, HelpCircle, Terminal, Database, Activity, Mail, MessageSquare } from 'lucide-react';
+import { Trophy, Loader2, HelpCircle, LogOut, Cpu, ShieldCheck, Zap, Wallet, BarChart3, Copy, CheckCircle2, Globe, RefreshCw, ChevronRight } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
-export default function DashboardEliteTotal() {
+export default function DashboardShowroom() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<any>(null);
   const [matriz, setMatriz] = useState([]); 
-  const [timer, setTimer] = useState("05:01:52:40");
+  const [timer, setTimer] = useState("00:00:00:00");
   const [qrCode, setQrCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
   const canvasRef = useRef(null);
-  const [clickCount, setClickCount] = useState(0);
 
   useEffect(() => {
     setMounted(true);
     const logged = localStorage.getItem('user');
-    if (logged) setUser(JSON.parse(logged));
-    else router.push('/');
+    if (logged) {
+      try { setUser(JSON.parse(logged)); } catch (e) { router.push('/login'); }
+    } else { router.push('/login'); }
 
+    // Lógica do Timer
     const interval = setInterval(() => {
       const now = new Date();
       const nextSat = new Date();
@@ -28,26 +30,23 @@ export default function DashboardEliteTotal() {
       nextSat.setHours(20, 0, 0, 0);
       if (now > nextSat) nextSat.setDate(nextSat.getDate() + 7);
       const diff = nextSat.getTime() - now.getTime();
-      const f = (n) => Math.floor(Math.max(0, n)).toString().padStart(2, '0');
+      const f = (n: number) => Math.floor(Math.max(0, n)).toString().padStart(2, '0');
       setTimer(f(diff/86400000) + ":" + f((diff/3600000)%24) + ":" + f((diff/60000)%60) + ":" + f((diff/1000)%60));
     }, 1000);
 
-    const canvas = canvasRef.current;
-    if(!canvas) return;
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    const coords = [];
-    for(let x=1; x<=25; x++) for(let y=1; y<=25; y++) coords.push(x + '/' + y);
-    const gridAnim = [];
-    for (let i = 0; i < 120; i++) {
-        gridAnim.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, text: coords[Math.floor(Math.random() * 625)], c: Math.random() * 100 });
+    // Efeito Matrix de Fundo
+    const canvas = canvasRef.current; if(!canvas) return;
+    const ctx = (canvas as any).getContext('2d');
+    (canvas as any).width = window.innerWidth; (canvas as any).height = window.innerHeight;
+    const coords: string[] = []; for(let x=1; x<=25; x++) for(let y=1; y<=25; y++) coords.push(x + '/' + y);
+    const gridAnim: any[] = []; for (let i = 0; i < 60; i++) {
+        gridAnim.push({ x: Math.random() * (canvas as any).width, y: Math.random() * (canvas as any).height, text: coords[Math.floor(Math.random() * 625)], c: Math.random() * 100 });
     }
     const draw = () => {
-      ctx.fillStyle = 'rgba(1, 4, 9, 0.25)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(1, 4, 9, 0.2)'; ctx.fillRect(0, 0, (canvas as any).width, (canvas as any).height);
       ctx.font = '900 12px Orbitron';
       gridAnim.forEach(s => {
-        s.c++;
-        if(Math.random() > 0.985) s.text = coords[Math.floor(Math.random() * 625)];
+        s.c++; if(Math.random() > 0.985) s.text = coords[Math.floor(Math.random() * 625)];
         const op = (Math.sin(s.c * 0.05) * 0.1) + 0.08;
         ctx.fillStyle = 'rgba(34, 211, 238, ' + op + ')';
         ctx.fillText(s.text, s.x, s.y);
@@ -61,13 +60,10 @@ export default function DashboardEliteTotal() {
     const pSet = new Set();
     while(pSet.size < 25) pSet.add((Math.floor(Math.random()*25)+1) + '/' + (Math.floor(Math.random()*25)+1));
     const array = Array.from(pSet);
-    const linhas = [];
-    for(let i=0; i<5; i++) linhas.push(array.slice(i*5, (i+1)*5));
-    setMatriz(linhas);
-    setQrCode(""); 
+    const linhas = []; for(let i=0; i<5; i++) linhas.push(array.slice(i*5, (i+1)*5));
+    setMatriz(linhas as any); setQrCode(""); 
   };
 
-  // NOME DA FUNÇÃO CORRIGIDO PARA BATER COM O BOTÃO ABAIXO
   const handleGerarPix = async () => {
     if (matriz.length === 0) return alert("Gere as coordenadas primeiro!");
     setLoading(true);
@@ -75,211 +71,181 @@ export default function DashboardEliteTotal() {
       const res = await fetch('/api/pix/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          email: user?.email, 
-          nome: user?.nome,
-          pixKeyResgate: user?.pixKey, // Supondo que pixKey seja o CPF
-          prognosticos: matriz.flat(), 
-          rodadaId: 1 
-        })
+        body: JSON.stringify({ email: user.email, pixKeyResgate: user.pixKey, prognosticos: matriz.flat(), rodadaId: 1 })
       });
       const data = await res.json();
-      if(data.qrCode) {
-        setQrCode(data.qrCode);
-      } else {
-        alert("Erro: " + data.error); // Vai avisar se o CPF estiver ruim
-      }
+      if(data.qrCode) setQrCode(data.qrCode);
+      else alert(data.error || "Erro no Gateway");
     } catch (e) { alert("Erro de rede"); }
     setLoading(false);
   };
 
   const handleConfirmar = () => {
     if (matriz.length === 0) return alert("Gere as coordenadas primeiro!");
-    if (!qrCode) return alert("Você precisa GERAR PIX e aguardar o QR Code primeiro!");
-
     localStorage.setItem('CERTIFICADO_G25', JSON.stringify({ 
       id: 'G25-WEB', 
       coords: matriz.flat(), 
       qrCode: qrCode, 
-      usuario: user?.nome, 
-      pixKey: user?.pixKey, // Salvando com o nome exato que o bilhete procura
+      usuario: user.nome, 
+      pixKey: user.pixKey,
       data: new Date().toLocaleString() 
     }));
     router.push('/bilhete/atual');
   };
 
-  if (!mounted || !user) return <div className="min-h-screen bg-[#010409]" />;
+  if (!mounted || !user) return <div className="min-h-screen bg-[#010409] flex items-center justify-center"><Loader2 className="animate-spin text-cyan-500" /></div>;
 
   return (
     <div className="min-h-screen bg-[#010409] text-white font-sans overflow-x-hidden relative selection:bg-cyan-500/30">
-      <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none opacity-60" />
+      <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none opacity-40" />
 
-      {/* TICKER SUPERIOR */}
-      <div className="w-full bg-black border-b border-cyan-500/30 py-3 overflow-hidden h-[45px] z-50 relative flex items-center">
-        <div className="animate-marquee whitespace-nowrap text-cyan-400 font-black uppercase text-[11px] tracking-widest font-elite">
-           🚀 BEM-VINDO À MIMOSINHA BRASIL: SORTEIOS GRATUITOS NO MODO TREINO &nbsp;&nbsp;&nbsp; | &nbsp;&nbsp;&nbsp; 💸 NO MODO REAL O PAGAMENTO É AUTOMÁTICO VIA PIX
-        </div>
-      </div>
-
-      <header className="sticky top-0 z-50 bg-[#020617]/90 backdrop-blur-md border-b border-white/10 h-20 flex items-center px-6">
-        <div className="max-w-[1200px] mx-auto w-full flex justify-between items-center font-elite">
-          <h1 className="text-white text-sm md:text-xl font-black uppercase italic tracking-tighter">MIMOSINHA<span className="text-cyan-400">BRASIL</span></h1>
-          <nav className="hidden md:flex gap-6 text-[9px] font-bold uppercase tracking-widest text-slate-400">
-             <button onClick={()=>router.push('/meus-bilhetes')} className="hover:text-white transition-all">REGISTROS</button>
-             <button onClick={()=>router.push('/resultados')} className="hover:text-white transition-all">RESULTADOS</button>
-             <button onClick={()=>{localStorage.clear(); window.location.href='/';}} className="text-red-500 font-black">SAIR</button>
-          </nav>
-          <div className="flex items-center gap-4">
-             <span className="text-[9px] font-black text-yellow-500 border border-yellow-500/20 px-3 py-1 rounded-full uppercase italic tracking-tighter">Acesso Restrito</span>
-             <p className="text-[10px] font-bold text-yellow-500 uppercase border border-yellow-500/20 px-4 py-1.5 rounded-full bg-yellow-500/10">Olá, {user?.nome?.split(' ')[0] || 'Usuário'}</p>
+      {/* HEADER CORPORATIVO */}
+      <header className="sticky top-0 z-50 bg-[#020617]/90 backdrop-blur-md border-b border-white/10 h-20 flex items-center px-6 md:px-10">
+        <div className="max-w-7xl mx-auto w-full flex justify-between items-center">
+          <div className="flex flex-col">
+            <h1 className="text-white text-xl font-black uppercase italic tracking-tighter font-elite leading-none">G25 MATRIX <span className="text-cyan-400">ENGINE</span></h1>
+            <span className="text-[8px] text-slate-500 uppercase font-black tracking-[0.4em] mt-1">Licensed for SFCHAGASFILHO</span>
+          </div>
+          <div className="flex items-center gap-6">
+             <div className="hidden md:flex gap-4">
+                <button onClick={()=>router.push('/meus-bilhetes')} className="text-[10px] font-black uppercase hover:text-cyan-400 text-white">Registros</button>
+                <button onClick={()=>router.push('/resultados')} className="text-[10px] font-black uppercase hover:text-cyan-400 text-white">Resultados</button>
+             </div>
+             <div className="bg-yellow-500/10 px-4 py-2 rounded-full border border-yellow-500/20">
+                <p className="text-[10px] font-bold text-yellow-500 uppercase tracking-tighter">Olá, {user.nome.split(' ')[0]}</p>
+             </div>
+             <button onClick={()=>{localStorage.clear(); router.push('/login');}} className="text-red-500"><LogOut size={20}/></button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 md:px-6 py-10 text-center relative z-10">
+      <main className="max-w-6xl mx-auto px-4 md:px-6 py-10 relative z-10">
         
-        {/* TIMER E SELO BLOCKCHAIN */}
-        <section className="mb-10">
-          <div style={{fontFamily:'Orbitron'}} className="text-4xl md:text-9xl font-black text-white drop-shadow-[0_0_15px_rgba(34,211,238,0.8)] tracking-tighter mb-2 italic">{timer}</div>
-          <p className="text-[9px] text-yellow-500 font-bold uppercase tracking-widest italic mb-2">Sábado às 20:00hrs</p>
-          <p className="text-cyan-400 font-bold uppercase tracking-[0.4em] text-[10px]">Nossa produção 100% blockchain</p>
+        {/* TIMER E SELO INPI */}
+        <section className="text-center mb-16">
+          <div className="inline-block bg-cyan-500/10 border border-cyan-500/30 px-4 py-1.5 rounded-full mb-6">
+             <p className="text-cyan-400 text-[9px] font-black uppercase tracking-[0.3em] flex items-center gap-2"><ShieldCheck size={12}/> Propriedade Intelectual Registrada INPI</p>
+          </div>
+          <div style={{fontFamily:'Orbitron'}} className="text-5xl md:text-9xl font-black text-white drop-shadow-[0_0_15px_rgba(34,211,238,0.8)] tracking-tighter mb-4 italic">{timer}</div>
+          <p className="text-white font-bold uppercase tracking-[0.4em] text-[10px] opacity-70">Próxima Extração Auditada Blockchain</p>
         </section>
 
-        {/* 1. CARDS PRODUTOS NO TOPO */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-5xl mx-auto">
-          <div className="bg-[#0f172a]/95 border border-cyan-500/30 p-10 rounded-[3.5rem] shadow-2xl text-center">
-             <h3 className="text-xl text-yellow-500 mb-2 font-black uppercase italic font-elite">INTER-BET</h3>
-             <p className="text-[9px] text-white font-bold mb-6">GANHA COM 5, 4, 3, 2 E ATÉ COM 1 PONTO APENAS.</p>
-             <button onClick={()=>window.open('https://blockchain-betbrasil.io/pt/inter-bet')} className="w-full bg-cyan-500 text-black py-4 rounded-3xl font-black text-[10px] uppercase shadow-lg">Acessar Site</button>
-          </div>
-          <div className="bg-[#0f172a]/95 border border-cyan-500/30 p-10 rounded-[3.5rem] shadow-2xl text-center">
-             <h3 className="text-xl text-cyan-400 mb-2 font-black uppercase italic font-elite">QUINA-BET</h3>
-             <p className="text-[10px] text-white font-bold mb-6">LOTERIA CLÁSSICA DE 5 PROGNÓSTICOS.</p>
-             <button onClick={()=>window.open('https://blockchain-betbrasil.io/pt/quina-bet')} className="w-full bg-cyan-500 text-black py-4 rounded-3xl font-black text-[10px] uppercase shadow-lg">Acessar Site</button>
-          </div>
-        </div>
+        {/* PRODUTOS E PORTAL */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+           {/* CARD PRODUTOS */}
+           <div className="bg-[#0f172a]/95 border border-cyan-500/30 p-8 rounded-[3rem] shadow-2xl flex flex-col justify-between">
+              <div>
+                <h3 className="text-xl text-yellow-500 mb-4 font-black uppercase italic font-elite">Modular Bet Solutions</h3>
+                <p className="text-white font-bold text-sm mb-6 leading-relaxed">Nossos algoritmos suportam múltiplas modalidades de quota fixa com liquidação automática.</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                 <div className="bg-black/40 p-4 rounded-2xl border border-white/5 text-center">
+                    <p className="text-cyan-400 font-black text-[10px] uppercase mb-1">INTER-BET</p>
+                    <p className="text-[9px] text-white font-medium">Ganhos de 1 a 5 pts</p>
+                 </div>
+                 <div className="bg-black/40 p-4 rounded-2xl border border-white/5 text-center">
+                    <p className="text-cyan-400 font-black text-[10px] uppercase mb-1">QUINA-BET</p>
+                    <p className="text-[9px] text-white font-medium">Lógica Clássica</p>
+                 </div>
+              </div>
+           </div>
 
-        {/* 2. PORTAL DE ACESSO E CRÉDITO NO MEIO */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 max-w-5xl mx-auto items-stretch">
-            <div className="bg-[#0f172a]/95 border border-cyan-500/30 p-10 rounded-[3.5rem] shadow-2xl text-left backdrop-blur-md">
-               <h3 className="text-[10px] text-yellow-500 mb-8 uppercase font-black font-elite">01. PORTAL DE ACESSO</h3>
-               <div className="space-y-4">
-                  <input placeholder="E-mail" value={user?.email || ''} className="w-full bg-slate-950 border border-slate-800 p-5 rounded-2xl text-sm text-white" readOnly />
-                  <input type="password" placeholder="Senha" value="********" className="w-full bg-slate-950 border border-slate-800 p-5 rounded-2xl text-sm text-white" onChange={(e) => setForm({...form, email: e.target.value})}
- />
-                  <button onClick={()=>alert("Acesso Matrix Validado")} className="w-full bg-cyan-700 p-5 rounded-2xl font-black text-xs uppercase shadow-lg">ACESSAR MATRIX</button>
-               </div>
-            </div>
+           {/* PORTAL DE ACESSO E CRÉDITO */}
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-[#0f172a]/95 border border-white/10 p-6 rounded-[2.5rem] shadow-xl">
+                 <h3 className="text-[10px] text-yellow-500 mb-6 uppercase font-black font-elite">01. Identidade</h3>
+                 <div className="space-y-3">
+                    <input value={user.email} className="w-full bg-slate-950 border border-slate-800 p-4 rounded-xl text-xs text-white font-bold" readOnly />
+                    <button className="w-full bg-cyan-700/50 p-4 rounded-xl font-black text-[10px] uppercase text-cyan-200">Matrix Ativa</button>
+                 </div>
+              </div>
 
-            <div className="bg-[#0f172a]/95 border border-cyan-500/30 p-10 rounded-[3.5rem] shadow-2xl flex flex-col items-center justify-center backdrop-blur-md">
-               <h3 className="text-[11px] text-cyan-400 mb-8 uppercase font-black font-elite">02. CRÉDITO (R$ 10)</h3>
-               <div className="bg-white p-4 rounded-3xl mb-8 shadow-inner flex items-center justify-center min-h-[128px]">
-                 {!qrCode ? (
-                    <div className="text-slate-300 text-[10px] font-bold uppercase animate-pulse">Aguardando...</div>
-                 ) : <QRCodeSVG value={qrCode} size={128} />}
-               </div>
-               <button onClick={handleGerarPix} disabled={loading || matriz.length === 0} className="w-full bg-slate-800 p-4 rounded-xl text-white font-black text-[10px] uppercase border border-white/5 shadow-lg flex justify-center items-center">
-                  {loading ? <Loader2 className="animate-spin" size={14}/> : "GERAR PIX"}
-               </button>
-            </div>
-        </div>
-
-        {/* 3. SLOGAN CENTRAL */}
-        <section className="mb-20">
-           <h2 className="text-xl md:text-4xl font-black uppercase tracking-tighter mb-4 text-white font-elite">
-             A ÚNICA MATRIZ ONDE <span className="text-yellow-500 italic">ERRAR 24 VEZES</span> <br/>AINDA TE FAZ UM VENCEDOR.
-           </h2>
-        </section>
-
-        {/* 4. BASE: MALHA MATRIX E COLUNA DIREITA */}
-        <div className="grid lg:grid-cols-3 gap-8 items-start text-left mb-20">
-          <div className="lg:col-span-2 bg-[#0d1117] border border-cyan-500/30 p-6 md:p-10 rounded-[3rem] shadow-2xl">
-             <h2 className="text-yellow-500 font-black text-[11px] uppercase mb-8 tracking-widest text-center italic font-elite">Sua Malha de Coordenadas Matrix 5x5</h2>
-             <div className="bg-black/90 border border-slate-800 rounded-[2rem] p-4 md:p-10 mb-8 shadow-inner">
-                <div className="grid grid-cols-6 gap-1.5 md:gap-4 items-center">
-                  {[0,1,2,3,4].map((i) => (
-                    <div key={i} className="contents">
-                      <span className="text-[8px] md:text-[10px] font-black text-cyan-500/40 text-right pr-1 italic font-elite">{i+1}º</span>
-                      {[0,1,2,3,4].map((j) => (
-                        <div key={j} className="aspect-square bg-slate-900 border border-cyan-500/30 rounded-lg flex items-center justify-center text-[10px] md:text-sm font-black text-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.1)]">
-                          {matriz[i] ? matriz[i][j] : '--/--'}
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </div>
-             </div>
-             <div className="flex gap-4 max-w-md mx-auto">
-                <button onClick={gerarMalha} className="flex-1 bg-slate-800 p-4 rounded-2xl font-black text-[10px] uppercase border border-white/5 font-elite transition-all hover:bg-slate-700">Trocar Coordenadas</button>
-                <button onClick={handleConfirmar} disabled={loading || matriz.length === 0} className="flex-1 bg-[#ea580c] p-4 rounded-2xl font-black text-[10px] uppercase shadow-lg font-elite transition-all hover:bg-orange-500 flex justify-center items-center gap-2">
-                   {loading ? <Loader2 className="animate-spin" size={14}/> : "Confirmar Certificado"}
-                </button>
-             </div>
-             <p className="text-[10px] text-white/30 text-center mt-6 uppercase font-bold italic tracking-widest">Identificado: {user?.nome || '...'}</p>
-          </div>
-
-          <div className="space-y-6">
-            <div className="bg-[#0f172a] border border-amber-500/30 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-   <div className="absolute top-0 right-0 bg-amber-500 text-black font-black text-[8px] px-3 py-1 rounded-bl-xl uppercase italic font-elite">SÓCIO AFILIADO</div>
-   <h3 className="text-[10px] text-amber-500 mb-6 font-black uppercase tracking-widest italic font-elite">💰 Meu Lucro</h3>
-   
-   {/* --- SEÇÃO DO LINK DE AFILIADO REATIVADA --- */}
-   <div className="mb-6 p-4 bg-black/40 rounded-2xl border border-white/5">
-      <p className="text-[8px] text-slate-500 uppercase font-black mb-2 tracking-widest text-center">Seu Link Único de Convite</p>
-      <div className="flex gap-2">
-         <input 
-            readOnly 
-            value={`https://www.bet-grupo25.com.br/register?ref=${user?.id}`}
-            className="bg-slate-950 border border-white/10 p-3 rounded-xl text-[8px] flex-1 text-cyan-400 font-mono outline-none"
-         />
-         <button 
-            onClick={() => {
-               navigator.clipboard.writeText(`https://www.bet-grupo25.com.br/register?ref=${user?.id}`);
-               alert("Link Copiado! Agora é só enviar para seus leads.");
-            }}
-            className="bg-amber-600 hover:bg-amber-500 p-2 rounded-xl text-[8px] font-black uppercase transition-all active:scale-95"
-         >
-            COPIAR
-         </button>
-      </div>
-   </div>
-   {/* ------------------------------------------ */}
-
-   <p className="text-[8px] text-slate-500 uppercase font-bold mb-1">Saldo Disponível</p>
-   <p style={{fontFamily:'Orbitron'}} className="text-3xl text-white font-black italic tracking-tighter">R$ 0,00</p>
-   <button onClick={()=>alert("Transferência solicitada")} className="w-full bg-[#ea580c] hover:bg-orange-500 text-white p-4 rounded-xl text-[10px] font-black uppercase mt-6 shadow-lg transition-all font-elite">SACAR VIA PIX</button>
-</div>
-
-            <div className="bg-[#0f172a] border border-emerald-500/30 p-8 rounded-[2.5rem] shadow-2xl">
-               <h3 className="text-[10px] text-emerald-400 mb-4 uppercase tracking-widest font-black font-elite flex items-center justify-center gap-2">🏆 Ranking Semanal</h3>
-               <p className="text-slate-500 italic text-[11px] uppercase tracking-tighter text-center">Sincronizando competidores...</p>
-            </div>
-
-            <div className="bg-[#0d1117] border border-white/10 p-8 rounded-[2.5rem] shadow-2xl text-left">
-               <h3 className="text-yellow-500 mb-6 uppercase font-bold text-[9px] tracking-widest italic font-elite text-center">⚖️ Transparência Legal</h3>
-               <div className="space-y-4 text-[9px] font-bold text-slate-400 uppercase font-mono">
-                  <div className="flex justify-between border-b border-white/5 pb-2"><span>Prêmio (43,35%)</span><span className="text-white">R$ 0,00</span></div>
-                  <div className="flex justify-between border-b border-white/5 pb-2"><span>Social (17,32%)</span><span className="text-white">R$ 0,00</span></div>
-                  <div className="flex justify-between border-b border-white/5 pb-2"><span>Segurança (9,26%)</span><span className="text-white">R$ 0,00</span></div>
-                  <div className="flex justify-between"><span>Educação (9,26%)</span><span className="text-white">R$ 0,00</span></div>
-               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 5. CONTATO FINAL */}
-        <div className="bg-[#0d1117]/80 border border-cyan-500/20 p-10 md:p-12 rounded-[4rem] mb-12 max-w-4xl mx-auto shadow-2xl backdrop-blur-md">
-           <h3 style={{fontFamily:'Orbitron'}} className="text-2xl text-cyan-400 mb-10 tracking-[0.3em] uppercase italic text-center">Entre em Contato</h3>
-           <div className="grid md:grid-cols-2 gap-10 text-center">
-              <div><p className="text-[11px] text-slate-500 uppercase font-black mb-2 text-center font-elite tracking-widest">E-mail Suporte</p><p className="text-sm font-bold text-center text-white italic tracking-tighter">suporte@blockchain-betbrasil.io</p></div>
-              <div><p className="text-[11px] text-slate-500 uppercase font-black mb-2 text-center font-elite tracking-widest">WhatsApp Oficial</p><p className="text-sm font-bold text-center text-white italic tracking-tighter">+55 (21) 99352-7957</p></div>
+              <div className="bg-[#0f172a]/95 border border-cyan-500/30 p-6 rounded-[2.5rem] flex flex-col items-center justify-center">
+                 <h3 className="text-[10px] text-cyan-400 mb-4 uppercase font-black font-elite">02. Crédito (R$ 10)</h3>
+                 <div className="bg-white p-3 rounded-2xl mb-4 shadow-inner flex items-center justify-center min-h-[110px]">
+                   {!qrCode ? (
+                      <div className="text-slate-300 text-[9px] font-black uppercase animate-pulse">Aguardando...</div>
+                   ) : <QRCodeSVG value={qrCode} size={110} includeMargin={true} level="H" />}
+                 </div>
+                 <button onClick={handleGerarPix} disabled={loading || matriz.length === 0} className="w-full bg-slate-800 p-3 rounded-xl text-white font-black text-[9px] uppercase hover:bg-slate-700 transition-all flex justify-center items-center">
+                    {loading ? <Loader2 className="animate-spin" size={14}/> : "GERAR PIX"}
+                 </button>
+              </div>
            </div>
         </div>
 
-        <footer className="py-20 border-t border-white/5 opacity-30 text-center relative z-[200]">
-           <p onClick={()=>{setClickCount(c=>c+1); if(clickCount>=4) router.push('/admin/central')}} className="text-[10px] font-black uppercase tracking-[0.5em] italic cursor-pointer select-none antialiased">
-              © 2026 BET-GRUPO25 | PROTOCOLOS MATRIX PRO | BY NEON DATABASE
-           </p>
+        {/* MALHA MATRIX 5X5 */}
+        <div className="bg-[#0d1117] border border-cyan-500/30 p-6 md:p-10 rounded-[3.5rem] shadow-2xl mb-16 relative overflow-hidden">
+           <div className="absolute top-0 right-0 p-8 opacity-5"><Zap size={200}/></div>
+           <h2 className="text-yellow-500 font-black text-xs md:text-sm uppercase mb-10 tracking-[0.4em] text-center italic font-elite">Malha de Prognósticos Matrix 5x5</h2>
+           
+           <div className="bg-black/90 border border-slate-800 rounded-[2.5rem] p-4 md:p-8 mb-10 shadow-inner">
+              <div className="flex flex-col gap-3">
+                {[0,1,2,3,4].map((i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <span className="text-[8px] md:text-[10px] font-black text-cyan-500/40 text-right w-16 italic">{i+1}º PRÊMIO</span>
+                    <div className="flex-1 grid grid-cols-5 gap-2">
+                      {[0,1,2,3,4].map((j) => (
+                        <div key={j} className="aspect-square bg-slate-900 border border-cyan-500/20 rounded-lg flex items-center justify-center text-[10px] md:text-sm font-black text-white shadow-sm">
+                          {matriz[i] ? (matriz[i] as any)[j] : '--/--'}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+           </div>
+           
+           <div className="flex flex-col md:flex-row gap-4 max-w-md mx-auto">
+              <button onClick={gerarMalha} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white p-4 rounded-2xl font-black text-[10px] uppercase border border-white/5 transition-all">Trocar Coordenadas</button>
+              <button onClick={handleConfirmar} disabled={loading || matriz.length === 0} className="flex-1 bg-[#ea580c] hover:bg-orange-600 text-white p-4 rounded-2xl font-black text-[10px] uppercase shadow-lg transition-all flex justify-center items-center gap-2">
+                 Confirmar Certificado
+              </button>
+           </div>
+        </div>
+
+        {/* AFILIADOS E COMPLIANCE */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+           {/* MEU LUCRO / AFILIADO */}
+           <div className="lg:col-span-1 bg-[#0f172a] border border-amber-500/30 p-8 rounded-[3rem] shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-amber-500 text-black font-black text-[8px] px-3 py-1 rounded-bl-xl uppercase italic">REVENUE SHARE</div>
+              <h3 className="text-[11px] text-amber-500 mb-6 font-black uppercase tracking-widest font-elite">💰 Meu Lucro</h3>
+              
+              <div className="mb-6 p-4 bg-black/40 rounded-2xl border border-white/5">
+                <p className="text-[8px] text-white uppercase font-black mb-2 tracking-widest text-center">Seu Link de Licenciado</p>
+                <div className="flex gap-2">
+                  <input readOnly value={`https://www.bet-grupo25.com.br/register?ref=${user.id}`} className="bg-slate-950 border border-white/10 p-3 rounded-xl text-[8px] flex-1 text-cyan-400 font-mono outline-none" />
+                  <button 
+                    onClick={() => { navigator.clipboard.writeText(`https://www.bet-grupo25.com.br/register?ref=${user.id}`); setCopied(true); setTimeout(()=>setCopied(false), 2000); }}
+                    className="bg-amber-600 p-2 rounded-xl text-[8px] font-black uppercase"
+                  >
+                    {copied ? <CheckCircle2 size={14}/> : <Copy size={14}/>}
+                  </button>
+                </div>
+              </div>
+
+              <p className="text-[8px] text-white uppercase font-bold mb-1 opacity-60">Saldo Disponível</p>
+              <p style={{fontFamily:'Orbitron'}} className="text-3xl text-white font-black italic tracking-tighter">R$ 0,00</p>
+              <button onClick={()=>alert("Pedido de saque registrado")} className="w-full bg-amber-600 hover:bg-amber-500 text-white p-4 rounded-2xl text-[10px] font-black uppercase mt-6 transition-all">Sacar via Pix</button>
+           </div>
+
+           {/* TRANSPARÊNCIA LEGAL */}
+           <div className="lg:col-span-2 bg-[#0d1117] border border-white/10 p-8 rounded-[3rem] shadow-2xl">
+              <h3 className="text-cyan-400 mb-8 uppercase font-black text-[10px] tracking-widest italic font-elite text-center flex items-center justify-center gap-3">
+                <BarChart3 size={16}/> Distribuição de Arrecadação (Contrato Smart)
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-[9px] font-black text-white uppercase">
+                 <div className="bg-white/5 p-4 rounded-2xl border border-white/5"><span>Prêmio Bruto</span><br/><span className="text-lg text-cyan-400">43,35%</span></div>
+                 <div className="bg-white/5 p-4 rounded-2xl border border-white/5"><span>Seguridade</span><br/><span className="text-lg text-cyan-400">17,32%</span></div>
+                 <div className="bg-white/5 p-4 rounded-2xl border border-white/5"><span>Segurança</span><br/><span className="text-lg text-cyan-400">9,26%</span></div>
+                 <div className="bg-white/5 p-4 rounded-2xl border border-white/5"><span>Educação</span><br/><span className="text-lg text-cyan-400">9,26%</span></div>
+              </div>
+              <p className="mt-8 text-[9px] text-white font-bold opacity-40 text-center uppercase tracking-widest">Protocolo de Auditoria v3.5 | Neon DB Engine</p>
+           </div>
+        </div>
+
+        <footer className="py-20 text-center opacity-30 text-[10px] font-black uppercase tracking-[0.5em] font-elite">
+           © 2026 G25 TECH SOLUTIONS | BY SFCHAGASFILHO
         </footer>
       </main>
 
@@ -290,8 +256,6 @@ export default function DashboardEliteTotal() {
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
         .font-elite { font-family: 'Orbitron', sans-serif; }
-        @keyframes marquee { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
-        .animate-marquee { animation: marquee 40s linear infinite; }
       `}</style>
     </div>
   );
