@@ -72,11 +72,12 @@ export default function NDA_G25() {
           </div>
         </article>
 
-        <footer className="mt-20 pt-10 border-t border-white/5 text-center opacity-30 print:hidden">
-          <p className="text-[10px] font-black uppercase tracking-[0.8em]">
-            BY <span className="text-cyan-400">SFCHAGASFILHO</span>
-          </p>
-        </footer>
+        // No rodapé do arquivo src/app/admin/nda/page.tsx
+<footer className="mt-20 pt-10 border-t border-white/5 text-center opacity-30 print:hidden">
+  <p className="text-[10px] font-black uppercase tracking-[0.6em]">
+    Documento Gerado por G25 TECH SOLUTIONS | WWW.G25TECH.COM.BR | BY SFCHAGASFILHO
+  </p>
+</footer>
 
       </div>
 
