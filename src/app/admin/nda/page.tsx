@@ -1,5 +1,5 @@
 "use client"
-import { ShieldCheck, FileText, Lock, Printer, ChevronLeft, Scale, PenTool, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Lock, Printer, ChevronLeft, Scale } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function NDA_G25() {
@@ -8,7 +8,6 @@ export default function NDA_G25() {
   return (
     <div className="min-h-screen bg-[#010409] text-white font-sans p-4 md:p-10 selection:bg-cyan-500/30 print:bg-white print:text-black">
       
-      {/* TOOLBAR NO-PRINT */}
       <div className="max-w-4xl mx-auto flex justify-between mb-8 no-print">
         <button onClick={() => router.back()} className="text-slate-500 hover:text-white flex items-center gap-2 text-xs font-black uppercase tracking-widest">
            <ChevronLeft size={18}/> Voltar
@@ -17,7 +16,7 @@ export default function NDA_G25() {
           onClick={() => window.print()}
           className="bg-cyan-600 hover:bg-cyan-500 text-white px-8 py-3 rounded-xl font-black uppercase text-xs flex items-center gap-2 transition-all shadow-lg"
         >
-          <Printer size={18} /> Exportar PDF para Assinatura
+          <Printer size={18} /> Exportar para Assinatura
         </button>
       </div>
 
@@ -25,16 +24,16 @@ export default function NDA_G25() {
         
         <header className="text-center mb-16 border-b border-white/5 pb-10 print:border-black">
           <ShieldCheck size={60} className="text-cyan-400 mx-auto mb-6" />
-          <h1 className="text-2xl md:text-4xl font-black uppercase font-elite tracking-tighter italic">
+          <h1 className="text-2xl md:text-4xl font-black uppercase font-elite tracking-tighter italic text-white print:text-black">
             ACORDO DE CONFIDENCIALIDADE
           </h1>
-          <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mt-4">Non-Disclosure Agreement (NDA) - G25 Tech</p>
+          <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] mt-4">Non-Disclosure Agreement (NDA) - G25 Tech Solutions</p>
         </header>
 
         <article className="space-y-8 text-sm md:text-base leading-relaxed text-slate-300 print:text-black text-justify font-medium">
           
           <p>
-            Pelo presente instrumento particular, de um lado, <strong className="text-white print:text-black">SFCHAGASFILHO</strong>, doravante denominada "DIVULGADORA", e do outro lado, a PESSOA FÍSICA ou JURÍDICA interessada no licenciamento de tecnologia, doravante denominada "RECEPTORA", celebram este Acordo sob as seguintes cláusulas:
+            Pelo presente instrumento particular, de um lado, <strong className="text-white print:text-black">SEBASTIÃO FRANCISCO CHAGAS FILHO</strong>, doravante denominada "DIVULGADORA", e do outro lado, a PESSOA FÍSICA ou JURÍDICA interessada no licenciamento de tecnologia, doravante denominada "RECEPTORA", celebram este Acordo sob as seguintes cláusulas:
           </p>
 
           <section>
@@ -45,49 +44,37 @@ export default function NDA_G25() {
           </section>
 
           <section>
-            <h3 className="text-cyan-400 font-black uppercase text-sm mb-4 flex items-center gap-2">
+            <h3 className="text-cyan-400 font-black uppercase text-sm mb-4 flex items-center gap-2 text-white print:text-black">
               <Lock size={16}/> 2. DEFINIÇÃO DE INFORMAÇÃO CONFIDENCIAL
             </h3>
             <p>Considera-se informação confidencial todo e qualquer dado técnico, financeiro, comercial, estratégico, segredos de negócio, fluxogramas, códigos-fonte e metodologias de processamento revelados pela DIVULGADORA.</p>
           </section>
 
           <section>
-            <h3 className="text-cyan-400 font-black uppercase text-sm mb-4 flex items-center gap-2">
-              <Lock size={16}/> 3. OBRIGAÇÕES DA RECEPTORA
+            <h3 className="text-cyan-400 font-black uppercase text-sm mb-4 flex items-center gap-2 text-white print:text-black">
+              <Scale size={16}/> 3. OBRIGAÇÕES E PENALIDADES
             </h3>
-            <p>A RECEPTORA compromete-se a:</p>
-            <ul className="list-disc pl-6 space-y-2 mt-4">
-              <li>Manter sigilo absoluto sobre os dados apresentados;</li>
-              <li>Não utilizar as informações para fins diversos da análise de licenciamento;</li>
-              <li>Não reproduzir, copiar ou realizar engenharia reversa nos algoritmos matriciais da DIVULGADORA.</li>
-            </ul>
+            <p>Este compromisso de sigilo terá validade de 05 (cinco) anos. O descumprimento sujeitará a RECEPTORA às sanções civis e criminais cabíveis, além de indenização por quebra de propriedade intelectual registrada junto ao INPI.</p>
           </section>
 
-          <section>
-            <h3 className="text-cyan-400 font-black uppercase text-sm mb-4 flex items-center gap-2">
-              <Scale size={16}/> 4. PRAZO E PENALIDADES
-            </h3>
-            <p>Este compromisso de sigilo terá validade de 05 (cinco) anos a partir da data de assinatura. O descumprimento sujeitará a RECEPTORA às sanções civis e criminais cabíveis, além de indenização por perdas e danos e quebra de propriedade intelectual (INPI).</p>
-          </section>
-
-          {/* ESPAÇO PARA ASSINATURA NO PDF */}
-          <div className="pt-20 grid grid-cols-1 md:grid-cols-2 gap-20">
+          {/* ÁREA DE ASSINATURA ATUALIZADA */}
+          <div className="pt-24 grid grid-cols-1 md:grid-cols-2 gap-20">
              <div className="text-center">
                 <div className="h-px bg-slate-500 w-full mb-4 print:bg-black" />
-                <p className="font-black uppercase text-[10px]">SFCHAGASFILHO</p>
+                <p className="font-black uppercase text-[10px] text-white print:text-black">SEBASTIÃO FRANCISCO CHAGAS FILHO</p>
                 <p className="text-[8px] text-slate-500 uppercase">Divulgadora / Proprietária</p>
              </div>
              <div className="text-center">
                 <div className="h-px bg-slate-500 w-full mb-4 print:bg-black" />
-                <p className="font-black uppercase text-[10px]">ASSINATURA DA RECEPTORA</p>
+                <p className="font-black uppercase text-[10px] text-white print:text-black">ASSINATURA DA RECEPTORA</p>
                 <p className="text-[8px] text-slate-500 uppercase">Licenciada Interessada</p>
              </div>
           </div>
         </article>
 
         <footer className="mt-20 pt-10 border-t border-white/5 text-center opacity-30 print:hidden">
-          <p className="text-[10px] font-black uppercase tracking-[0.6em]">
-            Documento Gerado por G25 TECH SOLUTIONS | BY SFCHAGASFILHO
+          <p className="text-[10px] font-black uppercase tracking-[0.8em]">
+            BY <span className="text-cyan-400">SFCHAGASFILHO</span>
           </p>
         </footer>
 
