@@ -1,21 +1,26 @@
 "use client"
 import { useState, useEffect, useRef, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
-import { ShieldCheck, Zap, Target, Cpu, Globe, BarChart3, ArrowRight, Lock, Database, Terminal, Plus, Minus } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { 
+  ShieldCheck, Zap, Target, Cpu, Globe, BarChart3, 
+  ArrowRight, Lock, Database, Terminal, Plus, Minus, 
+  Trophy, MousePointer2, Wallet 
+} from 'lucide-react';
 
 function LandingContent() {
   const router = useRouter();
-  const canvasRef = useRef(null);
+  const searchParams = useSearchParams();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // MOTOR MATRIX DE FUNDO - IDENTIDADE TECNOLÓGICA
   useEffect(() => {
     const canvas = canvasRef.current; 
     if(!canvas) return;
-    const ctx = (canvas as any).getContext('2d');
+    const ctx = canvas.getContext('2d');
     if(!ctx) return;
     
-    (canvas as any).width = window.innerWidth; 
-    (canvas as any).height = window.innerHeight;
+    canvas.width = window.innerWidth; 
+    canvas.height = window.innerHeight;
     
     const coords: string[] = []; 
     for(let x=1; x<=25; x++) for(let y=1; y<=25; y++) coords.push(x + '/' + y);
@@ -23,15 +28,16 @@ function LandingContent() {
     const grid: any[] = []; 
     for (let i=0; i<80; i++) {
       grid.push({ 
-        x: Math.random() * (canvas as any).width, 
-        y: Math.random() * (canvas as any).height, 
-        text: coords[Math.floor(Math.random() * 625)] 
+        x: Math.random() * canvas.width, 
+        y: Math.random() * canvas.height, 
+        text: coords[Math.floor(Math.random() * 625)],
+        speed: Math.random() * 0.05 + 0.02
       });
     }
 
     const draw = () => {
       ctx.fillStyle = 'rgba(1, 4, 9, 0.25)'; 
-      ctx.fillRect(0, 0, (canvas as any).width, (canvas as any).height);
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.font = '900 12px Orbitron'; 
       ctx.fillStyle = 'rgba(34, 211, 238, 0.15)';
       
@@ -44,7 +50,6 @@ function LandingContent() {
     draw();
   }, []);
 
-  // CANAL DE VENDAS DIRETO
   const handleWhatsappProposta = () => {
     const msg = encodeURIComponent("Olá! Estive analisando o portal G25TECH.COM.BR e gostaria de solicitar uma proposta comercial personalizada sobre o licenciamento do software.");
     window.open(`https://wa.me/5521993527957?text=${msg}`, '_blank');
@@ -187,7 +192,7 @@ function FaqItem({ title, text }: { title: string, text: string }) {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div className="w-full">
-      <button onClick={() => setIsOpen(!isOpen)} className="w-full p-8 flex justify-between items-center text-left text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-white/5 transition-all text-white group">
+      <button onClick={() => setIsOpen(!isOpen)} className="w-full p-8 flex justify-between items-center text-left text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-white/5 transition-all text-white group outline-none">
         <span className={isOpen ? 'text-cyan-400' : 'text-white group-hover:text-yellow-500 transition-colors'}>{title}</span> 
         <span className="text-yellow-500 text-xl font-bold">{isOpen ? <Minus size={18}/> : <Plus size={18}/>}</span>
       </button>
