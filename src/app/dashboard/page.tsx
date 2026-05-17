@@ -132,21 +132,40 @@ export default function DashboardShowroom() {
 
         {/* PRODUTOS E PORTAL */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-           {/* CARD PRODUTOS */}
-           <div className="bg-[#0f172a]/95 border border-cyan-500/30 p-8 rounded-[3rem] shadow-2xl flex flex-col justify-between">
+           {/* 🟢 CARD PRODUTOS - REATIVADO E FUNCIONAL */}
+           <div className="bg-[#0f172a]/95 border border-cyan-500/30 p-8 rounded-[3rem] shadow-2xl flex flex-col justify-between group">
               <div>
-                <h3 className="text-xl text-yellow-500 mb-4 font-black uppercase italic font-elite">Modular Bet Solutions</h3>
-                <p className="text-white font-bold text-sm mb-6 leading-relaxed">Nossos algoritmos suportam múltiplas modalidades de quota fixa com liquidação automática.</p>
+                <div className="flex justify-between items-start mb-4">
+                  <h3 
+                    onClick={() => window.open('https://blockchain-betbrasil.io', '_blank')}
+                    className="text-xl text-yellow-500 font-black uppercase italic font-elite cursor-pointer hover:text-white transition-all flex items-center gap-2"
+                  >
+                    Modular Bet Solutions <Globe size={18} className="text-slate-500"/>
+                  </h3>
+                </div>
+                <p className="text-white font-bold text-sm mb-8 leading-relaxed">
+                  Nossos algoritmos suportam múltiplas modalidades de quota fixa com liquidação automática via Smart Contracts.
+                </p>
               </div>
+
               <div className="grid grid-cols-2 gap-4">
-                 <div className="bg-black/40 p-4 rounded-2xl border border-white/5 text-center">
-                    <p className="text-cyan-400 font-black text-[10px] uppercase mb-1">INTER-BET</p>
+                 {/* LINK INTER-BET */}
+                 <button 
+                    onClick={() => window.open('https://blockchain-betbrasil.io/pt/inter-bet', '_blank')}
+                    className="bg-black/40 p-4 rounded-2xl border border-white/5 text-center hover:bg-cyan-600/20 hover:border-cyan-400 transition-all group/btn"
+                 >
+                    <p className="text-cyan-400 font-black text-[10px] uppercase mb-1 group-hover/btn:scale-110 transition-transform">INTER-BET</p>
                     <p className="text-[9px] text-white font-medium">Ganhos de 1 a 5 pts</p>
-                 </div>
-                 <div className="bg-black/40 p-4 rounded-2xl border border-white/5 text-center">
-                    <p className="text-cyan-400 font-black text-[10px] uppercase mb-1">QUINA-BET</p>
+                 </button>
+
+                 {/* LINK QUINA-BET */}
+                 <button 
+                    onClick={() => window.open('https://blockchain-betbrasil.io/pt/quina-bet', '_blank')}
+                    className="bg-black/40 p-4 rounded-2xl border border-white/5 text-center hover:bg-cyan-600/20 hover:border-cyan-400 transition-all group/btn"
+                 >
+                    <p className="text-cyan-400 font-black text-[10px] uppercase mb-1 group-hover/btn:scale-110 transition-transform">QUINA-BET</p>
                     <p className="text-[9px] text-white font-medium">Lógica Clássica</p>
-                 </div>
+                 </button>
               </div>
            </div>
 
