@@ -64,9 +64,9 @@ function LandingContent() {
   <div className="max-w-7xl mx-auto flex justify-between items-center">
     <div className="flex items-center gap-4 cursor-pointer" onClick={() => router.push('/')}>
   <img 
-    src="/logo-g25-tech.png" 
+    src="/logo-g25-tech-v2.png" 
     alt="G25 Tech Solutions" 
-    className="h-14 md:h-20 w-auto drop-shadow-[0_0_15px_rgba(34,211,238,0.4)] hover:scale-105 transition-all" 
+    className="h-12 md:h-16 w-auto drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]" 
   />
 </div>
     <div className="hidden md:flex gap-10 text-[10px] font-black uppercase tracking-widest text-slate-400">
