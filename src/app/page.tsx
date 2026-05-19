@@ -59,20 +59,24 @@ function LandingContent() {
     <div className="min-h-screen bg-[#010409] text-white font-sans overflow-x-hidden selection:bg-cyan-500/30">
       <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none opacity-40" />
 
-      {/* HEADER CORPORATIVO */}
-      <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-xl border-b border-white/10 py-6 px-6 md:px-10">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-black italic tracking-tighter uppercase font-elite">
-            G25<span className="text-cyan-400">TECH</span><span className="text-xs lowercase text-slate-500 ml-2 italic">.com.br</span>
-          </h1>
-          <div className="hidden md:flex gap-10 text-[10px] font-black uppercase tracking-widest text-slate-400">
-             <a href="#tecnologia" className="hover:text-cyan-400 transition-colors">Tecnologia</a>
-             <a href="#compliance" className="hover:text-cyan-400 transition-colors">Compliance</a>
-             <button onClick={() => router.push('/login')} className="hover:text-cyan-400 transition-colors uppercase font-black">Acessar Demo</button>
-          </div>
-          <button onClick={() => router.push('/login')} className="bg-white text-black px-6 py-2 rounded-full font-black uppercase text-[10px] hover:bg-cyan-400 transition-all shadow-lg">Área do Licenciado</button>
-        </div>
-      </nav>
+      {/* HEADER CORPORATIVO COM LOGO OFICIAL */}
+<nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-xl border-b border-white/10 py-4 px-6 md:px-10">
+  <div className="max-w-7xl mx-auto flex justify-between items-center">
+    <div className="flex items-center gap-4 cursor-pointer" onClick={() => router.push('/')}>
+      <img 
+        src="/g25-tech-logo.png" 
+        alt="G25 Tech Solutions" 
+        className="h-12 md:h-16 w-auto brightness-110 drop-shadow-[0_0_10px_rgba(34,211,238,0.3)]" 
+      />
+    </div>
+    <div className="hidden md:flex gap-10 text-[10px] font-black uppercase tracking-widest text-slate-400">
+       <a href="#tecnologia" className="hover:text-cyan-400 transition-colors">Tecnologia</a>
+       <a href="#compliance" className="hover:text-cyan-400 transition-colors">Compliance</a>
+       <button onClick={() => router.push('/login')} className="hover:text-cyan-400 transition-colors uppercase font-black">Acessar Demo</button>
+    </div>
+    <button onClick={() => router.push('/login')} className="bg-white text-black px-6 py-2 rounded-full font-black uppercase text-[10px] hover:bg-cyan-400 transition-all shadow-lg">Área do Licenciado</button>
+  </div>
+</nav>
 
       <main className="relative z-10 pt-40 pb-20 px-6">
         
