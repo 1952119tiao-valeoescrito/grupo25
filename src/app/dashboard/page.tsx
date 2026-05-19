@@ -83,13 +83,13 @@ export default function DashboardShowroom() {
 
       <header className="sticky top-0 z-50 bg-[#020617]/90 backdrop-blur-md border-b border-white/10 h-28 flex items-center px-6 md:px-10">
         <div className="max-w-7xl mx-auto w-full flex justify-between items-center">
-          <div className="flex items-center gap-6 cursor-pointer" onClick={() => router.push('/')}>
-            <img src="/logo-g25-tech-v2.png" alt="G25" className="h-20 w-auto brightness-110" />
-            <div className="flex flex-col">
-              <h1 className="text-white text-xl font-black uppercase italic font-elite leading-none">G25 MATRIX <span className="text-cyan-400">ENGINE</span></h1>
-              <span className="text-[9px] text-slate-500 font-black tracking-[0.4em] mt-2 uppercase">BY SFCHAGASFILHO</span>
-            </div>
-          </div>
+          <div className="flex items-center gap-4 cursor-pointer" onClick={() => router.push('/')}>
+  <img src="/logo-g25-tech-v3.png" alt="G25 Matrix" className="h-16 w-auto" />
+  <div className="flex flex-col">
+    <h1 className="text-white text-xl font-black uppercase italic font-elite leading-none tracking-tighter">G25 MATRIX <span className="text-cyan-400">ENGINE</span></h1>
+    <span className="text-[9px] text-slate-500 uppercase font-black tracking-[0.4em] mt-2">PROPRIEDADE DE SFCHAGASFILHO</span>
+  </div>
+</div>
           <div className="flex items-center gap-6 font-elite">
              <div className="hidden md:flex gap-6 text-xs uppercase font-black">
                 <button onClick={()=>router.push('/meus-bilhetes')} className="hover:text-cyan-400 transition-all text-white">Registros</button>

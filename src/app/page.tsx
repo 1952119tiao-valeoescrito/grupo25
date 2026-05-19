@@ -55,12 +55,12 @@ function LandingContent() {
       <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-xl border-b border-white/10 py-6 px-6 md:px-10">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-4 cursor-pointer" onClick={() => router.push('/')}>
-            <img 
-              src="/logo-g25-tech-v2.png" 
-              alt="G25 Tech Solutions" 
-              className="h-16 md:h-24 w-auto brightness-125 drop-shadow-[0_0_25px_rgba(34,211,238,0.5)] transition-all hover:scale-105" 
-            />
-          </div>
+  <img 
+    src="/logo-g25-tech-v3.png" 
+    alt="G25 Tech Solutions" 
+    className="h-28 md:h-48 w-auto brightness-125 drop-shadow-[0_0_20px_rgba(34,211,238,0.6)]" 
+  />
+</div>
           <div className="hidden md:flex gap-10 text-[10px] font-black uppercase tracking-widest text-slate-400 font-elite">
              <a href="#tecnologia" className="hover:text-cyan-400 transition-colors">Tecnologia</a>
              <a href="#compliance" className="hover:text-cyan-400 transition-colors">Compliance</a>
